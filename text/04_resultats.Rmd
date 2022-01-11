@@ -1,0 +1,959 @@
+---
+title: "Résultats"
+output: 
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+    number_sections: true
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+linestretch: 1.5
+indent: true
+---
+
+# Résultats
+
+À l'image des classements et classifications des nations les plus importantes de l'échange d'ambassades, accréditées pour une seule autre nation, on tente quelque chose de similaire pour les missions accréditées pour plusieurs pays et pour les hôtes de ces desdites. On expose également les dyades de missions multiples les plus récurrentes. Ensuite, on analyse visuellement et historiquement la structure du réseau de missions multiples à travers les décennies.
+
+Afin de déterminer la solidité et la pertinence des réseaux multiples, on compare la structure des réseaux multiples, uniques et les réseaux complets qui combinent tout à partir des mesures basiques de l'analyse des réseaux sociaux. Finalement, on veut voir si l'intermédiarité empirique du réseau des ambassades multiples, telle qu'on l'a mesurée, est similaire à la mesure de centralité d'intermédiarité: on calcule donc la corrélation entre les poids des noeuds et la centralité d'intermédiarité, et entre les poids des noeuds et la centralité de degré.
+
+```{r setup2, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      warning = FALSE,
+                      fig.align = "center")
+
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(janitor)
+
+library(igraph)
+
+library(questionr)
+# pour realiser les AGD
+library(FactoMineR)
+library(factoextra)
+
+source("../code/fonctions.R")
+
+f <- readRDS("../data/diplomatic_relations_all.rds")
+
+source <- "\\\\textbf{Source}: Diplometrics, Diplomatic Representation (2016).\n"
+
+champ_all <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 2013.\n"
+champ_clean <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 2013, relations rompues ou inexistantes exclues.\n"
+```
+
+## Les acteurs clefs du réseau de représentation des ambassades multiples
+
+Le but de cette section est de déterminer quels sont les pays et régions du monde les plus impliqués dans le réseau des missions diplomatiques multiples. Nommer les acteurs clefs permettra de mettre en valeur les nations qui ne seront peut-être pas visibles dans les représentations graphiques.
+
+### Les continents clefs
+
+On regarde la relation de chaque continent avec les missions diplomatiques multiples, afin d'avoir une vision globale avant l'étude par pays. Comme précisé dans le chapitre \ref{data-methodo}, on se concentre plus particulièrement sur la période précédant 1984 car c'est avant cette année que les accréditations multiples étaient dûment rapportées dans les archives des _Europa World Year Books_.
+
+On retrouve la triade de continent expéditeur/récepteur/destination pour chaque triade de pays expéditeur/récepteur/destination. On regroupe alors les observations par continent e/r/d, et on fait un tri à plat de la variable de type de mission selon les trois types. Le tableau \ref{tab:cont-perc} est un résumé de ces tris à plat: il présente seulement les fréquences des missions multiples envoyées, reçues ou destinées pour les pays d'un continent, pour les observations avant 1984 et sur toute la durée d'étude pour les valeurs entre parenthèses. L'inverse de ces valeurs est la fréquence de missions accréditées pour un seul pays.
+
+```{r cont-perc}
+exp_all <- f %>% filter(niv_rep!=0) %>% split(.$cont_exp) %>% map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+rec_all <- f %>% filter(niv_rep!=0) %>% split(.$cont_rec) %>% map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+des_all <- f %>% filter(niv_rep!=0) %>% split(.$cont_des) %>% map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+exp_pre <- f %>% 
+  filter(niv_rep!=0,year<1984) %>% 
+  split(.$cont_exp) %>% 
+  map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+rec_pre <- f %>% 
+  filter(niv_rep!=0,year<1984) %>% 
+  split(.$cont_rec) %>% 
+  map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+des_pre <- f %>% 
+  filter(niv_rep!=0,year<1984) %>% 
+  split(.$cont_des) %>% 
+  map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+champ_cont_perc <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 1983 (1960 à 2013 entre parenthèses), relations rompues ou inexistantes exclues.\n"
+lecture_cont_perc <- "\\\\textbf{Lecture}: pourcentages de missions multiples. Avant 1984, 50.2\\\\% des missions diplomatiques envoyées par des pays africains étaient accréditées pour plusieurs états (21.1\\\\% sur toute la période d'observation de 1960 à 2013). 40\\\\% des missions accueillies par les pays africains étaient accréditées pour plusieurs états. 38.8\\\\% des missions diplomatiques ciblant l'Afrique étaient multiples.\n"
+
+cont_perc <- tribble(
+  ~ "Continent",
+  ~ "% Envoi multiple",
+  ~ "% Réception multiple",
+  ~ "% Cible multiple",
+  "Afrique",
+  glue("{exp_pre$Africa$`%`[2]}" , " ({exp_all$Africa$`%`[2]})"),
+  glue("{rec_pre$Africa$`%`[2]}" , " ({rec_all$Africa$`%`[2]})"),
+  glue("{des_pre$Africa$`%`[2]}" , " ({des_all$Africa$`%`[2]})"),
+  "Amériques",
+  glue("{exp_pre$Americas$`%`[2]}" , " ({exp_all$Americas$`%`[2]})"),
+  glue("{rec_pre$Americas$`%`[2]}" , " ({rec_all$Americas$`%`[2]})"),
+  glue("{des_pre$Americas$`%`[2]}" , " ({des_all$Americas$`%`[2]})"),
+  "Asie",
+  glue("{exp_pre$Asia$`%`[2]}" , " ({exp_all$Asia$`%`[2]})"),
+  glue("{rec_pre$Asia$`%`[2]}" , " ({rec_all$Asia$`%`[2]})"),
+  glue("{des_pre$Asia$`%`[2]}" , " ({des_all$Asia$`%`[2]})"),
+  "Europe",
+  glue("{exp_pre$Europe$`%`[2]}" , " ({exp_all$Europe$`%`[2]})"),
+  glue("{rec_pre$Europe$`%`[2]}" , " ({rec_all$Europe$`%`[2]})"),
+  glue("{des_pre$Europe$`%`[2]}" , " ({des_all$Europe$`%`[2]})"),
+  "Océanie",
+  glue("{exp_pre$Oceania$`%`[2]}" , " ({exp_all$Oceania$`%`[2]})"),
+  glue("{rec_pre$Oceania$`%`[2]}" , " ({rec_all$Oceania$`%`[2]})"),
+  glue("{des_pre$Oceania$`%`[2]}" , " ({des_all$Oceania$`%`[2]})")
+) 
+
+cont_perc %>% 
+  kbl(caption = "Part de missions multiples par continent, de 1960 à 1983",
+      booktabs = TRUE) %>% 
+  kable_styling(latex_options = "hold_position") %>% 
+  column_spec(1,width = "3cm") %>% 
+  footnote(
+    general = c(source, champ_cont_perc, lecture_cont_perc),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+On voit d'office que les missions multiples n'ont jamais été majoritaires dans les relations diplomatiques déclinées par continent, à une exception près pour les missions envoyées par les pays d'Afrique. Les liens sortant de ces derniers étaient plus nombreux à accréditer une mission de représentation pour défendre leurs intérêts dans plusieurs pays à la fois avant 1984, et sur toute la période d'étude, par rapport aux pays des autres continents. De plus, avant 1984, les pays du continent africain étaient les seuls à envoyer autant de missions multiples que de missions uniques, ce qui démontre l'importance des ambassades "relais". Cette observation est renforcée quand on prend en compte le nombre absolu de liens: l'Afrique et les Amériques ont un nombre proche de liens, et l'Afrique envoie plus de missions multiples que les Amériques. Un autre point intéressant est la différence des fréquences entre les Amériques, l'Asie et l'Europe, les trois continents avec un nombre de pays proche (34, 38 et 32 respectivement): l'Asie se détache de ce trio, il y a plus d'accréditations multiples délivrées par les pays asiatiques par rapport à ceux des deux autres continents. 
+
+Pour 100 missions diplomatiques présentes physiquement, les pays d'Océanie accueillaient en moyenne plus de missions accréditées pour plusieurs pays avant 1984 par rapport aux autres continents, tandis que les pays européens sont en tête sur toute la période d'observation. L'Océanie dénombre le moins de liens entrants et le moins de pays sur les 5 continents et, inversement, l'Asie compte le plus de pays et l'Europe le plus de liens entrants: leurs pourcentages sont pourtant moins importants que celui de l'Océanie, ce qui pourrait impliquer qu'un plus grand nombre de pays dans une région n'est pas rédhibitoire pour qu'un pays construise une ambassade physique, accréditée pour un seul pays, au lieu de se reposer sur une de leur mission dans une position centrale. Toutefois, le pourcentage important de l'Europe montre qu'il reste des caractéristiques indépendantes du nombre de pays qui motivent la décision des autres.
+
+Sans surprise et logiquement, l'Océanie et l'Europe sont également les continents pour lesquels la proportion de liens de missions multiples qui leurs sont destinés, missions menées depuis une ambassade physique extérieure au pays ciblé, est supérieure à celle des autres continents, avant 1984 et en général. Héberger plus d'ambassades accréditées pour plusieurs pays veut dire que plus de pays sont indirectement mis en relation avec d'autres.
+
+À l'inverse, les pays des Amériques ont une relation moindre vis-à-vis des missions multiples, étant le continent envoyant, recevant et étant à l'autre bout des missions multiples à une moindre fréquence que les pays d'autres continents. Envoyer et recevoir des équipes spécialisées dans la politique d'un seul pays.
+
+Il est important de noter que les observations et les interprétations ne sont pas les mêmes selon le découpage géographique choisi. Par exemple, les 7 régions du monde définies par les Nations Unies réunissent l'Océanie et l'Asie de l'Est dans la région "Asie de l'Est et Pacifique": les 3 pourcentages de missions multiples diminuent drastiquement sous cette catégorie, tandis que ceux de l'Asie du Sud et de l'Afrique sub-saharienne augmentent, dépassant les 50% des envois totaux de ces régions. Par région, 41.8% des missions physiquement présentes en Amérique du Nord sont accréditées pour plusieurs pays, là où les Amériques au complet ne se détachaient pas (tableau \ref{tab:reg-perc}).
+
+```{r reg-perc}
+exp_pre <- f %>% 
+  filter(niv_rep!=0,year<1984) %>% 
+  split(.$reg_exp) %>% 
+  map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+rec_pre <- f %>% 
+  filter(niv_rep!=0,year<1984) %>% 
+  split(.$reg_rec) %>% 
+  map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+des_pre <- f %>% 
+  filter(niv_rep!=0,year<1984) %>% 
+  split(.$reg_des) %>% 
+  map(~ questionr::freq(.$focus_lab,total = TRUE,valid = FALSE))
+
+source <- "\\\\textbf{Source}: Diplometrics, Diplomatic Representation (2016).\n"
+champ_reg_perc <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 1983 (1960 à 2013 entre parenthèses), relations rompues ou inexistantes exclues.\n"
+lecture_reg_perc <- "\\\\textbf{Lecture}: pourcentages de missions multiples. Avant 1984, 36.8\\\\% des missions diplomatiques envoyées par des pays de l'Asie de l'Est et du Pacifique étaient accréditées pour plusieurs états. 32\\\\% des missions accueillies par les pays de cette région étaient accréditées pour plusieurs états, et 35.6\\\\% des missions diplomatiques ciblant cette région étaient multiples.\n"
+
+reg_perc <- function(x,y,z) {
+  name_cont <- names(x)
+  n_row <- length(x)
+  n_col <- 4
+  
+  table <- matrix(nrow = n_row,ncol = n_col)
+  table[,1] <- name_cont
+  
+  for (i in seq_along(x)) {
+    table[i,2] <- x[[i]][2,2]
+    table[i,3] <- y[[i]][2,2]
+    table[i,4] <- z[[i]][2,2]
+    
+    colnames(table) <- c("Région","% Envoi multiple","% Réception multiple","% Cible multiple")
+  }
+  return(table)
+}
+
+reg_perc_tab <- reg_perc(exp_pre,rec_pre,des_pre) 
+
+reg_perc_tab %>% 
+  kbl(caption = "Part de missions multiples par continent, de 1960 à 1983",
+      booktabs = TRUE,linesep = "") %>% 
+  kable_styling(latex_options = "hold_position") %>% 
+  footnote(
+    general = c(source, champ_reg_perc, lecture_reg_perc),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+Pour résumer, l'Afrique et plus particulièrement l'Afrique sub-saharienne ainsi que l'Asie du Sud délivraient plus d'accréditations multiples que simples comparé aux autres continents et régions. L'Océanie, pour les continents, et l'Afrique sub-saharienne pour les régions, recevaient et étaient ciblés par plus d'ambassades multiples sur la totalité des missions physiquement présentes dans ces régions, comparé aux autres.
+
+Des régions "invisibles" du réseau des ambassades uniques se départagent déjà avant même de présenter les pays clefs. Les accréditations multiples présentent une opportunité importante de s'insérer dans la représentation mondiale pour des régions en voie de développement. 
+
+### Les pays clefs
+
+On restreint les observations aux missions multiples, aux liens existants et non-rompus, et enfin aux liens où le pays hôte est différent du pays ciblé. Une mission d'un pays $x$ se trouvant dans un pays $y$ est généralement automatiquement accréditée pour $y$, on n'a pas trouvé preuve du contraire dans la base. Prendre ce phénomène en compte gonfle le nombre d'ambassades implantées physiquement chez un pays hôte, mais par conséquent masque le vrai nombre de missions qui sont menées depuis le pays hôte qui n'est pas le pays visé par la multiplicité pour un pays cible. Ce dernier critère permet donc d'accorder plus d'importance aux fonctions d'un pays hôte en tant que pôle de missions multiples. Le tableau \ref{tab:top-missions-multiples} présente trois classements des 20 pays dénombrant le plus d'accréditations multiples de 1960 à 1983 selon les trois variables d'envoi, de réception et de cible. On y joint une moyenne annuelle du nombre de liens. On note que les différences sont minimes qu'importe la période d'observation choisie, ce qui montre que les missions multiples sont propres au pré-1984 dans cette base.
+
+Toutefois, pour mieux comprendre l'importance des missions multiples pour certaines nations du monde, il nous revient de faire un détour par les missions uniques. Le tableau \ref{tab:top-missions-uniques} présente les "grands" pays de la diplomatie de 1960 à 1983, ceux qui envoient et accueillent le plus d'ambassades dans le cadre de relations directes et "prioritaires". Ces ambassades sont destinées à un seul et unique pays. On retrouve les acteurs attendus de la diplomatie: les États-Unis, la France et le Royaume-Uni sont le trio en tête de l'envoi et de la réception, ce que la littérature avait déjà exposé auparavant. Sur les 20 pays à la plus grande présence internationale, 17 font également partie des pays qui reçoivent le plus d'ambassades, les 3 exceptions étant la Tchécoslovaquie, la Pologne et la Suède pour les expéditeurs, le Canada, l'Autriche et la Turquie pour les hôtes: le monde des missions uniques était très homogène. Sous cet angle, l'hémisphère Nord était la zone majeure de diplomatie avec l'Europe et les États-Unis qui dominaient le classement des accréditations uniques. Ces nations avaient les moyens et l'envie de maintenir des relations "simples", et donc plus personnalisées, avec d'autres gouvernements. Il est temps de comparer ce tableau avec celui des missions multiples.
+
+```{r top-missions-uniques}
+# Top 15 pays qui reçoivent le plus de missions uniques (1960 à 1983)
+rec_u <-
+  f %>%
+  filter(focus_lab == "Mission unique",
+         destination == recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(recepteur_fr) %>% 
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = mean, n = 20) 
+
+# Top 15 pays qui envoient le plus de missions uniques
+exp_u <-
+  f %>%
+  filter(focus_lab == "Mission unique",
+         destination == recepteur,
+         year < 1984,
+         niv_rep != 0) %>%
+  count(expediteur_fr) %>%
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = mean, n = 20) 
+
+top_10u <- bind_cols(exp_u, rec_u)
+
+champ_top15u <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 1983. Relations dont les missions sont uniques, pays ciblé et pays hôte sont les mêmes, relations rompues ou non-existantes exclues.\n"
+lecture_top15u <- "\\\\textbf{Lecture}: de 1960 à 1983, la France est le pays ayant envoyé le plus de missions diplomatiques à accréditation simple, pour une moyenne de 114 missions de ce type par an. Les États-Unis sont le pays ayant reçu le plus de missions diplomatiques à accréditation simple, pour une moyenne de 89 missions de ce type par an."
+
+kbl(
+  top_10u,
+  caption = "Classement des 20 premiers pays selon le nombre de missions uniques",
+  digits = 0,
+  col.names = c("Pays expéditeur","Effectifs","Moyenne",
+                "Pays hôte","Effectifs","Moyenne"),
+  booktabs = T
+) %>%
+  kable_styling(font_size = 10.5,
+                latex_options = c("hold_position","scale_down")) %>% 
+  footnote(
+    general = c(source, champ_top15u, lecture_top15u),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+La prépondérance des pays européens est immédiatement remarquable. En dehors de la présence du Canada dans la section "expéditeur", les 5 premiers pays dans chaque catégorie sont issus du vieux continent, et semblent être en majorité des pays du nord de l'Europe. L'Europe du "Nord" en général serait donc un grand acteur dans la représentation multiple. 
+
+On commence par les pays expéditeurs: de 1960 à 2013, les pays européens étaient les plus susceptibles d'assigner plusieurs pays d'intérêts à une unique mission de représentation, au lieu de limiter les interactions d'un représentant et son équipe à une seule nation. Les pays de la Scandinavie en particulier mènent la course du déploiement de missions diplomatiques multiples, ce qui contraste avec les membres du Conseil de Sécurité et les grands pays européens qui sont d'importants pays accréditants des missions uniques. Il est intéressant de voir la Guinée et le Pakistan s'imposer dans les 10 premiers pays expéditeurs, signifiant leurs volontés d'échanges internationaux: leurs activités diplomatiques équivalent presque celles des 5 premiers pays, ce qui montre une ouverture importante vers d'autres nations. C'est à partir de la deuxième moitié du classement que les différences avec le tableau \ref{tab:top-missions-uniques} deviennent visibles, avec l'apparition de pays d'Asie et d'Afrique qui étaient très actifs dans l'envoi de missions multiples.
+
+Passons aux pays ciblés par les ambassades accréditées pour plusieurs pays: le Luxembourg domine largement cette catégorie, c'est d'ailleurs la seule colonne où le Grand-Duché apparaît toutes catégories et tableaux confondus ce qui montre bien son "impact" et sa désirabilité, invisible dans la vision classique du réseau diplomatique. Avec près de 500 missions de plus, ou en moyenne 19 de plus par an, destinées au Luxembourg par rapport à la Norvège, le Luxembourg est le pays le plus convoité et le moins accessible directement pour les autres gouvernements du monde. Pour le reste du classement, on note que 14 pays sur 20 sont européens. Cultiver une relation avec l'Europe reste donc un objectif majeur qui est rempli sans une présence physique. Plus surprenant encore est la présence dans cette colonne de 4 pays étant également parmi les plus grands hôtes de missions uniques: les Pays-Bas, la Suisse, le Canada et l'Autriche sont concernés. On peut de nouveau témoigner de la domination des pays scandinaves et nordiques ainsi que d'autres pays "insolites" comme le Sri Lanka, la Jordanie, le Bénin, et bien d'autres. On assiste à une diversification des acteurs populaires de la diplomatie.
+
+Finalement, étudions les pays hôtes des différentes ambassades: la catégorie des pays hôtes de missions multiples est la plus similaire à celle des grands pays hôtes de missions uniques, avec 11 des nations présentes dans les deux tableaux. Ceci pourrait évoquer la multiplication des responsabilités pour les hôtes, et la confiance qui leur est accordée, en plus du besoin que le pays hôte et le pays cible aient une bonne relation. Il y a maintenant la particularité que la Belgique arrive en tête. Là où les États-Unis accueillaient le plus d'ambassades destinées uniquement pour ce seul pays, la Belgique est le fief choisi par les autres pays du monde comme l'antenne vers d'autres états. La Belgique hébergeait d'ailleurs en moyenne plus d'ambassades accréditées pour d'autres nations que pour la Belgique même, une différence de 53 missions. Cette singularité s'appliquait aussi au Royaume-Uni, à la France, la Russie, la RFA ainsi qu'à l'Inde. Enfin, 7 pays d'Afrique se distinguent comme hôtes de missions multiples là où dans le premier tableau, seul l'Égypte s'imposait comme un pôle privilégié pour l'accueil d'ambassades. On observe mieux les différentes "portes d'entrée" pour des destinations tierces.
+
+<!-- voir traduction de hubs pour synonymes de pôles -->
+
+```{r top-missions-multiples}
+# Top 15 pays qui reçoivent le plus de missions multiples (1960 à 1983)
+rec <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(recepteur_fr) %>% 
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = mean, n = 20) 
+
+# Top 15 pays qui envoient le plus de missions multiples
+exp <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(expediteur_fr) %>% 
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = mean, n = 20) 
+
+# Top 15 pays ciblés par missions multiples
+des <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(destination_fr) %>%
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = mean, n = 20) 
+
+top_10 <- bind_cols(exp, rec, des)
+
+champ_top15m <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 1983. Relations dont les missions sont multiples, pays ciblé différent du pays hôte, relations rompues ou non-existantes exclues.\n"
+lecture_top15m <- "\\\\textbf{Lecture}: de 1960 à 1983, la Norvège est le pays ayant le plus de missions diplomatiques accréditées pour plusieurs nations au lieu d'une. En moyenne, le gouvernement norvégien a accrédité 37 ambassades par an pour plusieurs pays. La Belgique est le pays ayant accueilli le plus de missions diplomatiques multiples, 103 par an en moyenne. Enfin, le Luxembourg est le pays le plus visé par ces missions diplomatiques multiples, pour une moyenne annuelle de 67 missions."
+
+kbl(
+  top_10,
+  caption = "Classement des 20 premiers pays selon le nombre de missions multiples",
+  digits = 0,
+  col.names = c("Pays expéditeur","Effectifs","Moyenne",
+                "Pays hôte","Effectifs","Moyenne",
+                "Pays ciblé","Effectifs","Moyenne"),
+  booktabs = T
+) %>%
+  kable_styling(
+    # font_size = 10.5,
+    latex_options = c("hold_position","scale_down")
+    ) %>% 
+  footnote(
+    general = c(source, champ_top15m, lecture_top15m),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = F
+  )
+```
+
+En terme de quantité absolue de missions multiples envoyées, présentes et accréditées, l'échantillon des pays diffère bien de celui des missions uniques. Toutefois, il serait bien de savoir la portée des missions multiples sur l'ensemble des relations diplomatiques d'un pays. On exprime cette idée en terme de rapport de missions multiples sur toutes les missions propres à un pays (selon sa position dans la triade). Le tableau \ref{tab:top-multiples-pourcent} présente cette alternative avec le pourcentage de missions multiples sur le nombre total de missions, avec le pays hôte différent du pays ciblé, sur la période avant 1984.
+
+D'office, on observe les valeurs extrêmes pour plusieurs pays, signifiant que l'entièreté des missions envoyées, localisées ou accréditées pour un pays serait multiples. Avec les exceptions du Belize et de l'Afrique Orientale Britannique, seules des îles des Caraïbes et du Pacifique, ainsi que Zanzibar sont concernées. Les pays présents dans ce tableau sont également encore plus divers que ceux des tableaux précédents. Les pays d'Afrique et les îles des Caraïbes en particulier se distinguent en tant que pays qui se reposent beaucoup sur les accréditations multiples dans la part totale des liens dont ils sont à l'origine et dont ils sont les cibles.
+
+```{r top-multiples-pourcent}
+# TOP 20 pays qui envoient/reçoivent/sont ciblés par les missions multiples, 1960 à 1983, % missions multiples sur total missions ###
+
+t20p_rec <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(recepteur_fr,focus_lab,match_rd) %>% 
+  group_by(recepteur_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent = n/sum(n)*100) %>% 
+  ungroup() %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  select(-c(focus_lab,match_rd,n,nb_tot)) %>% 
+  slice_max(order_by = percent, n =20)
+  
+t20p_des <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(destination_fr,focus_lab,match_rd) %>% 
+  group_by(destination_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent = n/sum(n)*100) %>% 
+  ungroup() %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  select(-c(focus_lab,match_rd,n,nb_tot)) %>% 
+  slice_max(order_by = percent, n =20)
+
+t20p_exp <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(expediteur_fr,focus_lab,match_rd) %>% 
+  group_by(expediteur_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent = n/sum(n)*100) %>% 
+  ungroup() %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  select(-c(focus_lab,match_rd,n,nb_tot)) %>% 
+  slice_max(order_by = percent, n =20)
+
+t20p <- bind_cols(t20p_exp,t20p_rec,t20p_des)
+
+lecture_t20p <- "\\\\textbf{Lecture}: de 1960 à 1983, toutes les missions diplomatiques qui représentaient les intérêts du Bélize étaient accréditées pour plusieurs pays à la fois. 59.1\\\\% des missions diplomatiques présentes physiquement en Côte d'Ivoire étaient accréditées pour d'autres nations. Enfin, 84.5\\\\% des missions diplomatiques ciblant le Luxembourg étaient localisées dans d'autres pays que le Grand-Duché."
+
+kbl(t20p,
+    booktabs = T,
+    digits = 1,
+    col.names = c("Pays expéditeur","%","Pays hôte","%","Pays ciblé","%"),
+    caption = "Classement des 20 premiers pays selon le pourcentage de missions multiples"
+    ) %>% 
+  kable_styling(latex_options = c("scale_down","hold_position")) %>% 
+  footnote(
+    general = c(source, champ_top15m, lecture_t20p),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+```{r graph-destination-multiple, eval = FALSE}
+dest_mult <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(destination_fr,focus_lab,match_rd) %>% 
+  group_by(destination_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent = n/sum(n)*100) %>% 
+  ungroup()
+
+dest_mult %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  ggplot(mapping = aes(x = nb_tot, y = percent, label = destination_fr,color = percent)) +
+  geom_text(size = 3)+
+  labs(
+    x = "Nombre de missions accréditées pour un pays",
+    y = "Pourcentage d'accréditations multiples",
+    title = "% accréditations multiples par nb de missions",
+    color = "Pourcentage"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+
+Les pays d'Europe ont gardé une présence importante dans les trois catégories des missions multiples en nombre de missions, en particulier en tant que pays de résidence des ambassades multiples et en tant que pays ciblés par ces ambassades multiples. Il semble qu'il soit plus compliqué d'envoyer une grande quantité de missions en Europe, ce qui incite les autres pays du monde à déployer leurs équipes à des endroits uniques, et à leur attribuer de grandes juridictions. L'Europe du Nord était plus active dans la distribution d'accréditations multiples, mais leur longueur d'avance avec d'autres pays de l'hémisphère Sud n'est pas si importante. Bien que ces derniers ne soient pas les premiers en nombre de missions multiples qu'ils ont envoyées, hébergées ou par lesquelles ils étaient ciblées, leurs parts de missions multiples sur le nombre total de missions sont conséquentes. Leur dépendance sur les missions multiples est visible avec le seuil des 50% qui est souvent dépassé, avec quelques pays pour lesquels le corps diplomatique n'était pas du tout dévoué à la relation unique et directe. 
+
+### Analyse en Composantes Principales
+
+```{r setup-acp}
+p_rec <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(recepteur_fr,focus_lab,match_rd) %>% 
+  group_by(recepteur_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent_rec = n/sum(n)*100) %>% 
+  ungroup() %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  select(-c(focus_lab,match_rd,n,nb_tot),id = recepteur_fr)
+
+p_des <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(destination_fr,focus_lab,match_rd) %>% 
+  group_by(destination_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent_des = n/sum(n)*100) %>% 
+  ungroup() %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  select(-c(focus_lab,match_rd,n,nb_tot),id = destination_fr) 
+
+p_exp <- f %>% 
+  filter(niv_rep!=0,
+         year<1984) %>% 
+  count(expediteur_fr,focus_lab,match_rd) %>% 
+  group_by(expediteur_fr) %>% 
+  mutate(nb_tot = sum(n),
+         percent_exp = n/sum(n)*100) %>% 
+  ungroup() %>% 
+  filter(focus_lab == "Mission multiple", match_rd == FALSE) %>% 
+  select(-c(focus_lab,match_rd,n,nb_tot),id = expediteur_fr)
+
+p_mid <- full_join(p_exp,p_rec)
+p_all <- full_join(p_mid,p_des) %>% 
+  mutate(across(percent_exp:percent_des, ~ case_when(is.na(.x)~0,TRUE~.x)))
+
+a_rec <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(recepteur_fr, name = "n_rec") %>% 
+  mutate(mean_rec = n_rec/24) %>% 
+  select(id = recepteur_fr, everything())
+
+a_exp <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(expediteur_fr, name = "n_exp") %>% 
+  mutate(mean_exp = n_exp/24) %>% 
+  select(id = expediteur_fr, everything())
+
+a_des <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         year < 1984,
+         niv_rep != 0) %>% 
+  count(destination_fr, name = "n_des") %>%
+  mutate(mean_des = n_des/24) %>% 
+  select(id = destination_fr, everything())
+
+a_mid <- full_join(a_exp,a_rec)
+a_all <- full_join(a_mid,a_des) 
+a_all[is.na(a_all)] <- 0
+
+all_all <- full_join(p_all,a_all) %>% 
+  select(-c(mean_rec,mean_des,mean_exp)) %>% 
+  column_to_rownames("id")
+
+res_pca <- PCA(all_all, graph=FALSE)
+```
+
+On a créé plusieurs variables quantitatives pour pouvoir classer les pays selon leurs relations avec les missions multiples. Toutefois, en raison de notre choix de coupage aux 20 valeurs les plus élevées, il manque une certaine visibilité que des représentations graphiques des relations entre chaque variable ne comblent pas. En effet, dans le cadre de la thématique des missions multiples, un graphique à deux dimensions n'est pas suffisant pour exprimer toutes les relations entre les variables selon le pays puisque un pays peut être un expéditeur, un hôte et une cible en même temps. De plus, on suppose qu'il y a des réactions/relations différentes selon où un pays se place sur la quantité absolue de missions multiples propres à celui-ci, et la part de missions multiples dans toutes les relations maintenues par un état, intuition fondée sur la variabilité des classements selon le choix de quantification. Ici, l'objectif est de trouver les pays qui se ressemblent le plus dans le contexte des missions multiples.
+
+On choisit d'appliquer une analyse en composantes principales (ACP), pour faire un bilan des ressemblances des variables et des individus. Ce choix est guidé par la nature des variables, toutes quantitatives et continues. Cette analyse géométrique des données permet d'afficher un aplati de toutes les dimensions. On utilise ici les effectifs des missions multiples envoi/réception/destination ainsi que les pourcentages de missions multiples sur le nombre total de missions pour un pays selon sa place dans la triade, soit six variables actives au total pour 168 individus. Les valeurs manquantes sont remplacées par des valeurs nulles. L'hypothèse nulle est que les variables propres à chaque type de position dans la triade diplomatique sont corrélées entre elles. Le champ reste identique à précédemment: il s'agit des missions multiples, des liens non-rompus et existants, avec l'hôte différent de la cible, tout avant 1984.
+
+L'ACP a déterminé l'existence de 6 axes. Selon le tableau \ref{tab:tab-acp-inertie} des inerties des axes, les 2 premiers axes de l'analyse expriment 66.7% de l'inertie totale de la base; 66.7% de la variabilité totale du nuage des individus et des variables est représentée dans ce plan. C'est un pourcentage assez important, le premier plan représente donc convenablement la variabilité contenue dans une grande part du onu de données actif. Cette valeur est nettement supérieure à la valeur référence de 42.15%, la variabilité expliquée par ce plan est donc hautement significative. Du fait de ces observations, on restreint l'analyse aux deux premiers axes qui résument le mieux et le plus d'informations. 
+
+```{r tab-acp-inertie}
+# Inertie des 6 axes issus de l'ACP
+tab_inertie <- get_eigenvalue(res_pca)
+
+rownames(tab_inertie) <- gsub("Dim.", "Axe ", rownames(tab_inertie))
+
+tab_inertie %>% 
+  kbl(booktabs = T,
+      digits = 1,
+      caption = "Inerties des 6 axes issus de l'ACP",
+      col.names = c("Valeurs propres",
+                    "% de variance","% cumulé de variance"),
+      linesep = "") %>% 
+  kable_styling(latex_options = "hold_position")
+```
+
+Il s'agit maintenant d'expliciter les informations contenues dans les deux axes, quelles sont les variables qui ont construit les axes. Selon le tableau montrant les contributions de toutes les variables actives pour les axes de l'ACP (tableau \ref{tab:tab-acp-axes}), on peut établir que le premier axe sépare:
+
+* À gauche, les grands récepteurs d'ambassades accréditées pour plusieurs pays, en nombre total comme en proportion d'ambassades reçues, 
+* Aux pays étant ciblés par une plus grande part de ce genre d'ambassades que d'ambassades uniques à droite. 
+
+Quant à l'axe 2, plus la coordonnée augmente, plus il s'agit de pays qui délivraient beaucoup d'accréditations multiples aux ambassades qui représentaient leurs intérêts, et que beaucoup de leurs homologues cherchaient à atteindre par l'intermédiaire de leurs ambassades situées ailleurs.
+
+```{r tab-acp-axes}
+# Contribution des variables aux deux axes
+tab_axes <- data.frame(
+  cor_1 = res_pca$var$cor[,1],
+  cos2_1 = res_pca$var$cos2[,1],
+  contrib_1 = res_pca$var$contrib[,1],
+  cor_2 = res_pca$var$cor[,2],
+  cos2_2 = res_pca$var$cos2[,2],
+  contrib_2 = res_pca$var$contrib[,2]
+)
+
+tab_axe_rowname <- function(x) {
+  rownames(x) <-gsub("percent_","Proportion ",rownames(x))
+  rownames(x) <-gsub("n_","Nombre ",rownames(x))
+  rownames(x) <-gsub("rec","récepteur",rownames(x))
+  rownames(x) <-gsub("des","destination",rownames(x))
+  rownames(x) <-gsub("exp","expéditeur",rownames(x))
+  
+  x
+}
+
+tab_axes <- tab_axe_rowname(tab_axes)
+
+tab_axes %>% 
+  kbl(digits = 2,
+      booktabs = T,
+      col.names = c("Corrélation",
+                    "cos²",
+                    "Contribution",
+                    "Corrélation",
+                    "cos²",
+                    "Contribution"),
+      caption = "Contribution des variables aux deux premiers axes",
+      linesep = "") %>% 
+  add_header_above(c("","Axe 1 (37.2%)" = 3, "Axe 2 (29.4%)" = 3)) %>%
+  kable_styling(latex_options = c("scale_down","hold_position"))
+
+```
+
+```{r graph-acp-var, eval = FALSE, fig.pos="h", fig.cap="ACP - graphique des variables"}
+fviz_pca_var(res_pca, 
+             col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             title = "",
+             legend.title = "cos²\nQualité de la\nreprésentation",
+             xlab = "Axe 1 (37.2%)",
+             ylab = "Axe 2 (29.4%)",
+             repel = TRUE # Évite le chevauchement de texte
+)
+```
+
+On analyse maintenant le graphique du nuage des individus (figure \ref{fig:graph-acp-ind}). Les individus les plus proches de l'origine du graphique sont les individus au profil moyen, ce sont également ceux qui sont les moins bien projetés sur les axes. La couleur des observations dépend de la qualité de représentation mesurée par cos² et pas de la contribution car le plus loin un point est de l'origine, le plus il contribue à la construction de l'axe et à l'information comprise dans celui-ci en raison de ses valeurs extrêmes. On voit d'ailleurs que ce sont ces individus extrêmes qui sont le mieux projeté.
+
+Le nuage des individus montre que les pays scandinaves sans la Suède, ainsi que la Suisse, l'Autriche, le Canada et les Pays-Bas forment bien un groupe à part de grands expéditeurs et grandes destinations pour les ambassades à plusieurs missions. Ce groupe s'oppose à une formation un peu plus éparse d'îles qui étaient en marge du réseau multiple: ces dernières envoyaient très peu de missions multiples et les relations diplomatiques multiples avec elles n'étaient pas recherchées par leurs homologues. Cette dernière observation est basée sur le fait qu'on retrouve également la Chine, les Etats-Unis, l'Egypte, la Russie et la France dans cette moitié inférieure: on pourrait donc croire que les relations avec ces pays ne sont aussi pas convoitées, mais ce n'est pas le cas. Le tableau des missions uniques a montré qu'il s'agissait de pays où beaucoup d'ambassades uniques résidaient. On peut donc dire que oui, ces pays n'étaient pas désirés dans le contexte des missions multiples car ils étaient déjà à l'autre bout de relations prioritaires, contrairement au groupement d'îles.
+
+La gauche de ce graphique réunit les pays qui recevaient beaucoup d'ambassades multiples, d'ailleurs beaucoup d'entre eux sont aussi ceux qui hébergeaient une grande quantité d'ambassades qui leur étaient entièrement dédiées, et qui en même temps dépêchaient des ambassadeurs à juridiction unique. Les positions des Pays-Bas, de la Suisse, de la Suède, de la Belgique et du Canada sont des exceptions notables, ces pays étant de grands expéditeurs et hôtes d'ambassades uniques: ils sont éloignés du groupe central des missions uniques qui est très concentré sur la partie positive de l'axe 1. Ces 5 pays apportent une double contribution au réseau complet de représentation diplomatique.
+
+```{r graph-acp-ind, fig.pos="h", fig.cap="ACP - graphique des individus"}
+fviz_pca_ind(res_pca, 
+             col.ind = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             title = "",
+             legend.title = "cos²\nQualité de la représentation",
+             legend = "bottom",
+             xlab = "Axe 1 (37.2%)",
+             ylab = "Axe 2 (29.4%)",
+             labelsize = 3,
+             repel = TRUE # Évite le chevauchement de texte
+)
+```
+
+L'ACP présentée ici a permis de construire des groupes approximatifs de pays, qui ont des relations différentes avec les missions multiples. Le résultat le plus considérable est l'existence d'un groupe de pays à l'écart des relations diplomatiques, multiples et sans doute uniques aussi.
+
+### Les dyades clefs 
+
+On regarde maintenant les dyades les plus importantes dans les échanges de missions multiples, plus particulièrement les dyades expéditeur à hôte qui montrent les choix des expéditeurs et les dyades hôte à cible qui montrent les liens les plus exploités par les expéditeurs. Cette approche est utile pour voir les liens sur lesquels certaines nations mettent le plus d'emphase, ainsi que les liens dont les autres nations tirent le plus parti. Le tableau \ref{tab:top-dyades} compte les 20 dyades les plus nombreuses expéditeurs à hôtes et hôtes à cibles, qui remplissent les conditions suivantes: les relations sont multiples, le pays hôte est différent du pays pour lequel la mission est destinée, et les liens rompus ou inexistants sont exclus de l'échantillon. 
+
+On n'inclut pas le classement des dyades expéditeur à cible car ce n'est pas possible qu'un pays veuille être plusieurs fois dans un même pays pour une seule année. De plus, il y a trop peu de variance dans les résultats: les paires Pologne-Yémen et Yémen-Bulgarie ont une courte avance sur les autres paires qui se répètent 23 fois pour la majorité d'entre elles. Cette avance s'explique par le fait que les observations pour le Yémen sont doublées puisque les auteurs ont codé Yémen pour le Yémen du Nord et le Yémen du Sud. Autrement, le nombre 23 indique que les pays ont renouvelé leur choix d'envoyer des missions multiples continuellement de 1960 à 1983.
+
+```{r top-dyades}
+exprec <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         niv_rep != 0,year<1984) %>%
+  count(expediteur_fr, recepteur_fr) %>% 
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = n, n = 20) %>% 
+  mutate(
+    recepteur_fr = case_when(
+      recepteur_fr == "République fédérale d'Allemagne" ~ "RFA",
+      TRUE ~ recepteur_fr)
+  )
+
+desrec <-
+  f %>% 
+  filter(focus_lab == "Mission multiple",
+         destination != recepteur,
+         niv_rep != 0,year<1984) %>%
+  count(recepteur_fr, destination_fr) %>% 
+  mutate(mean = n/24) %>% 
+  slice_max(order_by = n, n = 20)
+
+paires <- bind_cols(exprec, desrec)
+  
+lecture_top_dyades <- "\\\\textbf{Lecture}: de 1960 à 1983, les liens de missions multiples expéditeur à hôte Trinité-et-Tobago/Royaume-Uni et Turquie/Mexique étaient les plus récurrents. La dyade Belgique/Luxembourg est la plus récurrente parmi les liens hôte à cible.\n"
+
+kbl(
+  paires,
+  caption = "Classement des 20 premières dyades entre le pays hôte et le pays représenté/ciblé",
+  booktabs = T,
+  digits= 0,
+  col.names = c("Expéditeur", "Hôte", "Effectifs","Moyenne",
+                "Hôte", "Cible", "Effectifs", "Moyenne")
+) %>%
+  kable_styling(latex_options = c("scale_down","hold_position")) %>%
+  add_header_above(c("Expéditeur à hôte" = 4, "Hôte à cible" = 4)) %>%
+  # column_spec(2, width = "4.5cm") %>% 
+  footnote(
+    general = c(source, champ_top15m, lecture_top_dyades),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+
+Les fréquences des relations entre pays expéditeur et pays récepteur mettent en avant quelques anciennes relations coloniales qui se répètent plus que les autres, notamment entre des états caribéens membres du Commonwealth et le Royaume-Uni, ainsi qu'entre le Rwanda et la Belgique, trois liens très exploités pour héberger leurs missions multiples. On voit aussi la récurrence du Mexique comme choix répété d'hôte de mission de représentation multiple dans les Amériques, choix provenant de plusieurs pays européens, en plus du Liban. Finalement, il est intéressant de voir qu'il y a plusieurs liens se répétant entre des pays d'Afrique et la Belgique, avec l'exception du Bénin vers la République Fédérale d'Allemagne et la Guinée vers l'Italie. 
+
+Un duo expéditeur-hôte qui se répète est signe d'une relation privilégiée quoique déséquilibrée pour l'expéditeur qui dépend du pays hôte pour l'accueil (infrastructure de l'hôte pour pouvoir communiquer et travailler avec le troisième pays, accès géographique en cas de rencontre physique entre représentants, bonne relation nécessaire entre hôte et troisième pays, etc.). Ce sens mesure l'influence des pays qui reçoivent beaucoup de missions multiples et donc par qui la communication passe si besoin d'un autre pays accrédité chez le pays hôte.
+
+Dans la direction pays accueillant l'ambassade vers le pays accrédité pour la mission de représentation, le Luxembourg en tant que cible a une large longueur d'avance sur les autres pays auxquels l'accès n'est pas direct. De 1960 à 1983, la paire Belgique/Luxembourg en tête du classement était utilisée deux fois de plus par rapport à la dyade suivante, Canada/États-Unis. Autrement dit, le nombre de pays mobilisant leurs ambassades belges pour travailler avec leurs homologues luxembourgeois était le double de celui des pays mobilisant leurs ambassades étasuniennes pour travailler avec leurs homologues canadiens. En se référant au tableau \ref{tab:top-missions-multiples}, il est intéressant de noter que 58 des 103 ambassades localisées en Belgique et accréditées pour d'autres pays, sont accréditées pour le Luxembourg. Les autres pays du monde se reposaient donc beaucoup sur la Belgique avant toutes autres nations voisines pour entretenir une relation avec le Luxembourg, ce qu'on peut également interpréter comme le Luxembourg étant le pays avec lequel il est le plus compliqué de construire des relations bilatérales directes. Ceci n'a pas dissuadé les autres pays du monde qui ont continué à constituer des équipes diplomatiques. On rejoint l'observation précédente indiquant que le Luxembourg était le pays le plus "désiré" sur la scène internationale.
+
+Un autre phénomène intéressant est la place de la Suède comme hôte pour des pays qui souhaitent représenter leurs intérêts dans d'autres pays scandinaves (Finlande, Norvège et Danemark), et donc exploitent leurs missions en Suède. La paire Norvège/Islande est aussi très demandée. 
+
+Dans la plupart des cas, les pays hôtes de missions multiples sont voisins avec les pays ciblés, c'est-à-dire qu'ils partagent une frontière, avec quelques exceptions. Ces exceptions concernent surtout les îles cibles des missions de représentations multiples, missions qui sont localisées soit dans d'autres îles plus "grandes" (par exemple le Japon et l'Australie), soit plus généralement dans de grandes nations continentales. L'insularité pourrait donc être un argument en faveur de l'accréditation multiple pour les expéditeurs. 
+
+Dans ce sens, on pense être en train d'évaluer le prestige des pays ciblés pour lequel l'accès est indirect ou compliqué. Plus une dyade de ce type est exploitée par les autres, plus la relation avec le pays ciblé est "recherchée".
+
+```{r diff-cont, eval=FALSE}
+diff_cont <- f %>% filter(niv_rep!=0, cont_rec!=cont_des)
+
+diff_cont_tab <- diff_cont %>%
+  count(expediteur_fr, recepteur_fr, destination_fr) %>%
+  slice_max(order_by = n, n = 20)
+
+diff_cont_tab %>% 
+  kbl(booktabs = T,
+      caption = "xxx",
+      col.names = c("Expéditeur","Hôte","Cible","Effectifs")) %>% 
+  kable_styling(font_size = 10.5)
+```
+
+Cette section a présenté les différents acteurs et paires d'acteurs des relations internationales qui ont eu ressort aux accréditations multiples plus intensément que les autres, de 1960 à 1983. Les pays d'Afrique employaient plus cette méthode, tandis que les pays d'Europe étaient accréditées directement et indirectement par beaucoup de ces missions. Les paires d'acteurs ont montré que la plupart des duos hôte/cible était proche géographiquement, sans surprise. 
+
+L'existence d'un groupe insulaire en marge des échanges diplomatiques multiples et uniques a fragilisé l'hypothèse de l'intégration de nouveaux états dans les échanges diplomatiques au moyen des missions multiples.
+
+## L'évolution du réseau de représentation multiple au fil des années
+```{r setup-igraph}
+# Etat des lieux - 1960 v 2013
+e_1960 <- f %>% filter(year==1960,niv_rep!=0) %>% score_lien(expediteur,recepteur,destination)
+n_1960 <- score_pays_dis(e_1960)
+
+e_2013 <- f %>% filter(year==2013,niv_rep!=0) %>% score_lien(expediteur,recepteur,destination)
+n_2013 <- score_pays_dis(e_2013)
+
+# Par décennie
+e_an60 <- f %>% filter(decade=="Années 60",focus_lab=="Mission multiple",niv_rep!=0) %>% score_lien(expediteur,recepteur,destination)
+n_an60 <- score_pays_dis(e_an60)
+graph_an60_m <- graph.data.frame(e_an60,n_an60,directed = TRUE)
+
+e_an70 <- f %>% filter(decade=="Années 70",focus_lab=="Mission multiple",niv_rep!=0) %>% score_lien(expediteur,recepteur,destination)
+n_an70 <- score_pays_dis(e_an70)
+graph_an70_m <- graph.data.frame(e_an70,n_an70,directed = TRUE)
+
+e_an80 <- f %>% filter(decade=="Années 80",focus_lab=="Mission multiple",niv_rep!=0) %>% score_lien(expediteur,recepteur,destination)
+n_an80 <- score_pays_dis(e_an80)
+graph_an80_m <- graph.data.frame(e_an80,n_an80,directed = TRUE)
+
+e_reste <- f %>% filter(year %in% 1990:2013,focus_lab=="Mission multiple",niv_rep!=0) %>% score_lien(expediteur,recepteur,destination)
+n_reste <- score_pays_dis(e_reste)
+graph_reste_m <- graph.data.frame(e_reste,n_reste,directed = TRUE)
+```
+
+On évalue maintenant visuellement la structure du réseau de représentation internationale au fil des années.
+
+Avec le logiciel _gephi_, on projette le réseau sur un fond de carte du monde en projection Mercator. On décline le réseau d'accréditation multiple par décennie, en débutant avec les années 1960 jusqu'à la fin des années 1980, puis on réunit les observations de 1990 à 2013 en raison du faible nombre de missions multiples dans les décennies faisant partie de cet intervalle. 
+
+### État des lieux
+
+Premièrement, on fait un état des lieux du réseau complet des ambassades du monde en 1960 et en 2013 afin de voir les grandes différences entre les deux extrêmes. Pour les figures \ref{graph-1960} et \ref{graph-2013}, la taille des noeuds est proportionnelle à la centralité d'intermédiarité ; la couleur des noeuds dépend de la modularité déterminée par le logiciel ; l'épaisseur des liens est proportionnelle au poids du lien. La figure \ref{graph-1960} du réseau de 1960 montre les liens qui pèsent au moins 10% du lien le plus lourd, le lien Belgique/Luxembourg, suivi très loin par Argentine/Paraguay. On a tenté d'appliquer le même critère en 2013 pour la figure \ref{graph-2013}, sans succès, car 99% des liens ont le même poids. Cameroun/République centrafricaine ainsi que Japon/Cameroun sont les liens les plus forts en 2013.
+
+Ici, l'intérêt de la modularité est de s'avoir quels noeuds sont proches l'un de l'autre et forment des groupes qui ont beaucoup de connections entre eux et sont plus étroitement regroupés que d'autres noeuds. L'inconvénient de la représentation du réseau sur un fond de carte est qu'on éloigne artificiellement des noeuds qui sont similaires dans une projection "normale" comme Fruchterman-Reingold. Ainsi, on garde un peu de l'information du réseau "pur" tout en le projetant d'une manière compréhensible. 
+
+On observe que:
+
+* Il y a beaucoup plus de liens et d'acteurs en 2013 qu'en 1960, le réseau de 2013 est très bien connecté;
+* Pour les communautés déterminées par l'algorithme de modularité, on voit en 1960 une séparation entre l'Amérique latine, l'Europe, l'Asie centrale et l'Afrique du Nord, et la plus surprenante: le Royaume-Uni avec les Etats-Unis, le Japon et les pays du Pacifique. En 2013, l'Europe est "fragmentée" en Est contre Ouest: la communauté de l'Ouest comprend toute l'Afrique et les Etats-Unis. Le Royaume-Uni est toujours à part, mais cette fois-ci avec les pays d'Amérique latine et le Canada. L'Asie du Sud, Sud-Est et les pays du Pacifique forment leur communauté, sans la Chine. 
+* Il n'y a pas de liens africains "lourds" en 1960, et il y a très peu de pays africains dans les relations ambassadoriales cette année-là. En 2013, ce problème est réglé;
+* En 1960, la France, l'Inde et la Grande-Bretagne étaient plus souvent entre des courts chemins entre noeuds, l'Europe en général était la région la plus "intermédiaire". En 2013, c'était les Etats-Unis, la Chine et la Grande-Bretagne. La Chine était 51ème en 1960.
+
+
+\begin{figure}[hp]
+\centering
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/graph_1960.png}
+\caption{1960}
+\captionsetup{aboveskip=0pt}
+\caption*{Graphe orienté : 101 noeuds, 3317 liens.}
+\label{graph-1960}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/graph_2013.png}
+\caption{2013}
+\captionsetup{aboveskip=0pt}
+\caption*{Graphe orienté : 198 noeuds, 9066 liens.}
+\label{graph-2013}
+\end{subfigure}
+
+\caption{Réseau complet des ambassades du monde en 1960 et en 2013.}
+\label{graph-etat-lieu}
+\end{figure}
+
+
+### Evolution du réseau multiple au fil des décennies
+
+On passe maintenant au réseau de missions multiples par décennie. La couleur des noeuds dépend du poids sortant du noeud. La taille des noeuds est proportionnele au poids entrant du noeud, la taille du label également. L'épaisseur d'un lien est proportionnelle à son poids normalisé. Pour des raisons de lisibilité et pour voir les liens les plus importants, seuls les liens au-dessus de 10% du poids du lien le plus important (Belgique/Luxembourg pendant 30 ans) sont affichés.
+
+On observe:
+
+* L'expansion des accréditations multiples à travers les décennies, jusqu'aux années 1990 qui voient leur affaiblissement remarquable. Le changement des retranscriptions des archives mène à une perte d'information trop importante et à un changement trop drastique pour que ce soit le reflet de la réalité. La majorité de pays aurait modifié leurs modes de représentation de l'accréditation multiple à l'accréditation unique en 1984 ? On en doute. 
+* Au même titre que les réseaux complets, l'augmentation du nombre de noeuds et de liens est saisissante (sauf entre années 70 et 80 avec un nombre équivalent de liens pour 5 noeuds de plus). Le nombre de liens "forts" a également augmenté, puisque beaucoup plus d'entre eux apparaissaient malgré le critère des 10% du poids du lien le plus important.
+
+À des échelles plus réduites, sur certains noeuds et groupes de noeuds, on voit que:
+
+* Les pays d'Afrique se sont progressivement insérés dans les relations ambassadoriales grâce aux ambassades multiples, en particulier les pays côtiers qui forment des chemins continus. L'Egypte, la Tanzanie, le Kenya, le Nigéria et le Sénégal sont les portes d'entrées pour les autres. L'observation est la même pour les pays d'Amérique Centrale et Latine. La position des Etats-Unis est intéressante: ils sont récepteurs pour le Mexique et l'Argentine, qui sont eux-mêmes récepteurs pour d'autres "petits" pays. 
+* L'Europe était au coeur de ce réseau en 1960, et a de la compétition à partir de 1980. 
+* La Belgique est le siège des ambassades destinées à plusieurs pays, elle en reçoit beaucoup comme indique la taille du noeud, mais elle en envoie aussi beaucoup comme montre sa couleur.
+* Le Luxembourg a une grande taille et une couleur pâle: il n'envoie pas ou peu de missions, mais est une cible importante.
+
+<!-- \begin{figure}[h] -->
+<!-- \centering -->
+<!-- \includegraphics[width=0.9\textwidth]{../graphics/annees60weighted.png} -->
+<!-- \caption{Réseau de représentation diplomatique multiple des années 1960.} -->
+<!-- \captionsetup{aboveskip=0pt} -->
+<!-- \caption*{Graphe orienté : x noeuds, y liens.} -->
+<!-- \label{graph-an60} -->
+<!-- \end{figure} -->
+
+\begin{figure}[hp]
+\centering
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/graph_an60.png}
+\caption{Années 60}
+\captionsetup{aboveskip=0pt}
+\caption*{Graphe orienté : 137 noeuds, 3583 liens.}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/graph_an70.png}
+\caption{Années 70}
+\captionsetup{aboveskip=0pt}
+\caption*{Graphe orienté : 159 noeuds, 7065 liens.}
+\end{subfigure}
+\end{figure}
+
+\begin{figure}[hp]
+\centering
+\ContinuedFloat
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/graph_an80.png}
+\caption{Années 80}
+\captionsetup{aboveskip=0pt}
+\caption*{Graphe orienté : 164 noeuds, 7087 liens.}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/graph_reste.png}
+\caption{Années 90 à 2013}
+\captionsetup{aboveskip=0pt}
+\caption*{Graphe orienté : 109 noeuds, 179 liens.}
+\end{subfigure}
+
+\caption{Réseau des ambassades à accréditations multiples, par décennie.}
+\label{graph-decades}
+\end{figure}
+
+Par curiosité, on a reproduit les 3 premières cartes de cet ensemble en colorant les noeuds et les liens selon la communauté qui leur a été attribuée par l'algorithme de modularité de _gephi_ (annexe \ref{annexe-cartes}). Dans les années 60, l'appartenance géographique de pays voisins ne ressemblait  pas à l'appaternance à la même communauté. C'est visible en Afrique, avec l'Ouest qui est sa communauté à part entière, le Sud qui appartient à la même communauté que l'Europe du Nord, le Centre qui appartient à la même communauté que la Belgique et le Luxembourg, et le Nord qui appartient à la même communauté que le Moyen-Orient, l'Europe de l'Est et quelques pays d'Asie. L'Asie du Sud-Est et le Pacifique sont avec l'Europe méditerranéenne. Les Amériques sont également divisées, mais propres à elles, à l'exception de la triade Japon/Corée du Sud/Taïwan qui appartient à la communauté de la côte Pacifique de l'Amérique du Sud.
+
+On observe toutefois une homogénéisation progressive des groupes, pour atteindre des divisions beaucoup plus claires et géographiquement "sensées" dans les années 80. 
+
+### Comparaison des réseaux
+
+On compare la structure des réseaux de missions multiples, missions uniques, et réseau complet combinant les deux types à partir des mesures mathématiques de connectivité et de cohésion, plus particulièrement les mesures se rapportant aux réseaux entiers. Le tableau \ref{tab:multiple-v-unique} résume toutes les mesures pour les 12 réseaux différents. On ajoute les résultats pour la période après 1990, mais on décide de ne pas les interpréter étant donné le changement dans les données.
+
+Les objectifs sont d'évaluer et de comparer les structures des réseaus d'ambassades: est-ce que celui des missions multiples est aussi lié et "performant" que celui des missions uniques, et éventuellement le réseau complet.
+
+```{r multiple-v-unique}
+# années 60
+e_an60_u <- f %>% 
+  filter(decade=="Années 60",focus_lab=="Mission unique",niv_rep!=0) %>%
+  res_simple_e(expediteur,recepteur)
+graph_an60_u <- graph.data.frame(e_an60_u,directed = TRUE)
+
+e_an60_c <- f %>% 
+  filter(decade=="Années 60",niv_rep!=0) %>% 
+  score_lien(expediteur,recepteur,destination)
+graph_an60_c <- graph.data.frame(e_an60_c,directed = TRUE)
+
+# années 70
+e_an70_u <- f %>% 
+  filter(decade=="Années 70",focus_lab=="Mission unique",niv_rep!=0) %>%
+  res_simple_e(expediteur,recepteur)
+graph_an70_u <- graph.data.frame(e_an70_u,directed = TRUE)
+
+e_an70_c <- f %>% 
+  filter(decade=="Années 70",niv_rep!=0) %>% 
+  score_lien(expediteur,recepteur,destination)
+graph_an70_c <- graph.data.frame(e_an70_c,directed = TRUE)
+
+# années 80
+e_an80_u <- f %>% 
+  filter(decade=="Années 80",focus_lab=="Mission unique",niv_rep!=0) %>%
+  res_simple_e(expediteur,recepteur)
+graph_an80_u <- graph.data.frame(e_an80_u,directed = TRUE)
+
+e_an80_c <- f %>% 
+  filter(decade=="Années 80",niv_rep!=0) %>% 
+  score_lien(expediteur,recepteur,destination)
+graph_an80_c <- graph.data.frame(e_an80_c,directed = TRUE)
+
+# années 1990-2013
+e_reste_u <- f %>% 
+  filter(year %in% 1990:2013,focus_lab=="Mission unique",niv_rep!=0) %>%
+  res_simple_e(expediteur,recepteur)
+graph_reste_u <- graph.data.frame(e_reste_u,directed = TRUE)
+
+e_reste_c <- f %>% 
+  filter(year %in% 1990:2013,niv_rep!=0) %>% 
+  score_lien(expediteur,recepteur,destination)
+graph_reste_c <- graph.data.frame(e_reste_c,directed = TRUE)
+
+tab_summary_reseau_uw(graph_an60_m,graph_an60_u,graph_an60_c,
+                   graph_an70_m,graph_an70_u,graph_an70_c,
+                   graph_an80_m,graph_an80_u,graph_an80_c,
+                   graph_reste_m,graph_reste_u,graph_reste_c) %>% 
+  kbl(booktabs = T,
+      digits = 2,
+      caption = "Comparaison de la structure des réseaux selon le type d'accréditation",
+      align = "lcrccrc",
+      col.names = c("Graphe","Noeuds","Liens",
+                    "Densité","Transitivité","Diamètre",
+                    "Distance moyenne")
+      ) %>% 
+  kable_styling(latex_options = c("scale_down",
+                                  "hold_position")) %>% 
+  # column_spec(7,width = "2cm") %>% 
+  pack_rows("Années 60",1,3) %>% 
+  pack_rows("Années 70",4,6) %>% 
+  pack_rows("Années 80",7,9) %>% 
+  pack_rows("1990 à 2013",10,12) %>% 
+  footnote(
+    general = c(source,champ_all),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+Comme on a pu le voir avec la représentation cartographique, le nombre de liens des réseaux multiples a augmenté de 1960 à 1989, au point d'atteindre un nombre similaire à celui des missions uniques. La densité du réseau multiple équivaut celle du réseau unique, le réseau multiple est même plus cohésif que lui à partir de 1970. Au mieux, 28% des liens possibles sont compris dans le réseau des missions multiples des années 70, pour un écart de 11 points de pourcentage avec le réseau complet, contre 14 points dans les années 60. Petit à petit, des liens qui n'existent pas entre pays et ambassades simplement accréditées se créent dans le réseau des liens multiples.
+
+Au niveau de la transitivité, les réseaux uniques et complets performent mieux, ce qui n'empêche pas le réseau multiple d'être bien connecté. Au fil des années, la connectivité du réseau multiple approche celle des deux autres, pour atteindre une probabilité supérieure à 50% qu'un noeud $x$ et un noeud $z$ soit lié, en sachant que $x$ est lié à $y$ et que $y$ est lié à $z$.
+
+En ce qui concerne le diamètre, des plus longs chemins existent dans le réseau multiple mais la différence n'est pas si grande. Autre détail intéressant, la distance maximale entre deux noeuds a augmenté pour les réseaux uniques et complets entre les années 80 et 2013 malgré l'explosion du nombre de liens et de noeuds.
+
+Enfin, la distance moyenne entre toutes les paires de noeuds du réseau multiple est très proche de celle du réseau unique et a diminué au point que la distance moyenne pour les liens multiples dans les années 70 et 80 soit inférieure à celle des liens uniques.
+
+Le réseau de représentation multiple a progressivement rivalisé avec le réseau de représentation unique, avec des pays de plus en plus proches et avec des liens de plus en plus variés. Ceci nous fait penser que si cette tendance avait été documentée correctement après 1983, on aurait pu voir un réseau multiple aussi robuste et intégrant qu'un réseau unique, voire plus. On note toutefois que la barre du tiers des liens possibles n'a pas été dépassée (ou peu et temporairement), ce qui confirme les observations de Bayer (2006) sur la proportion des liens possibles existants après la Seconde Guerre Mondiale.
+
+### Les intermédiaires concrets du réseau diplomatique face à la centralité d'intermédiarité de Freeman
+
+Pour terminer cette analyse, on mesure la corrélation entre les poids créés et les centralités d'intermédiarité et de degré, pour les réseaux multiples. Les trois premières colonnes montrent les corrélations entre les poids entrants, sortants et totaux de chaque noeud avec leur centralité d'intermédiarité. La deuxième partie du tableau mesure la corrélation entre le poids entrant et la centralité de demi-degré entrant, le poids sortant et la centralité de demi-degré sortant, puis le poids total avec la centralité de degré d'un noeud.
+
+On cherche ici si nos mesures et les mesures de la théorie des graphes vont dans le même sens, ce qui pourrait indiquer que l'intermédiarité mathématique a été appliquée inconsciemment au monde réel. Toutefois, on ne peut pas confirmer cet argument puisque on n'effectue pas de test de causalité.
+
+```{r tab-corr-reseau}
+corr_rez <- tab_corr_reseau(graph_an60_m,
+                graph_an70_m,
+                graph_an80_m,
+                graph_reste_m) %>% 
+  bind_cols(graphe_lab = c("Années 60",
+                           "Années 70",
+                           "Années 80",
+                           "1990 à 2013")) %>% 
+  select(graphe_lab,everything(),-graphe)
+                
+corr_rez %>% 
+  kbl(booktabs = T,
+      digits = 2,
+      caption = "Corrélations entre mesures construites et mesures théoriques",
+      col.names = c("Réseaux multiples",
+                    "Entrant","Sortant","Somme",
+                    "Entrant","Sortant","Somme"),
+      linesep = "") %>% 
+  add_header_above(c("",
+                     "Centralité d'intermédiarité x" = 3, 
+                     "Centralité de degré x" = 3)) %>% 
+  kable_styling(latex_options = "hold_position")
+```
+
+Toutes les corrélations sont positives, donc quand une mesure augmente, l'autre augmente aussi. La distribution de la centralité d'intermédiarité est plus similaire à celle du poids total, tandis que les demi-degrés entrants sont plus similaires aux poids entrants. Les correlations entre nos mesures et la centralité de degré sont plus importantes qu'entre nos mesures et la centralité d'intermédiarité. On observe que les corrélations diminuent à chaque nouvelle décennie: c'est peut-être un signe que les intermédiaires diplomatiques devenaient un phénomène indépendant que des mesures mathématiques ne pouvaient pas prédire.
+
+
+## Conclusion {-}
+
+Dans cette section, on a vu que les acteurs qui se sont appuyés sur les accréditations multiples pour une ambassade étaient beaucoup plus divers que les principaux employeurs des accréditations simples. Ces derniers étaient relativement fixes que ce soit en tant que pays accréditants que pays accréditeurs: on y a retrouvé les grandes puissances économiques et politiques de l'époque. En ce concentrant sur les missions multiples, on a pu voir des grandes différences entre les acteurs selon leur position dans la triade expéditeur/récepteur/destination. Les pays scandinaves se sont imposés comme des expéditeurs et des cibles de taille pour les missions multiples, mais ils n'en dépendaient pas autant que les pays de l'Afrique sub-saharienne et les îles du Pacifique et des Caraïbes. Les pays récepteurs appartenaient à la catégorie la plus stable entre les missions uniques et les missions multiples, montrant que les autres pays du monde préféraient mobiliser ce qui existait déjà plutôt que de générer de nouvelles dépenses.
+
+Le réseau des ambassades accréditées pour plusieurs pays s'est bien développé, il était performant et bien connecté: les nombres de liens et de noeuds ont augmenté en 30 ans, l'Afrique, l'Amérique latine et l'Océanie ont renforcé leurs connections. Ce réseau était aussi cohésif et avait des noeuds proches entre eux au point d'avoir une structure comparable à celle du réseau des ambassades uniques. Malgré ces points positifs, certains pays sont tout de même restés à l'écart des échanges diplomatiques en envoyant peu de missions et en étant délaissés par les autres nations du monde. Nos mesures de poids n'ont également pas de différences importantes avec les centralités d'intermédiarité et de degré.
+
+On tente maintenant d'interpréter ces résultats.

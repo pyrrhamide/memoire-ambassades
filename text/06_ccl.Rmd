@@ -1,0 +1,25 @@
+---
+output: pdf_document
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+linestretch: 1.5
+indent: true
+header-includes:
+    - \setlength{\parskip}{1em}
+---
+
+\phantomsection
+
+# Conclusion {-}
+
+
+Ce mémoire voulait présenter le système de représentation diplomatique multiple et identifier les pays qui le faisaient fonctionner, pour parer à la domination des mêmes pays dans les études sur les représentations uniques. Montrer que quelques pays ne "cèdent" pas à la pression de la multiplication des ambassades, n'essaient pas d'être présents partout directement. J'ai également posé la question de la différence entre les intermédiaires empiriques du réseau de représentation multiple avec la mesure mathématique de centralité d'intermédiarité.
+
+Les résultats principaux sont que ces réseaux ont pu intégrer de plus en plus d'acteurs qui étaient de mieux en mieux connectés entre eux. Les régions marginalisées par les formes de relations internationales les plus prestigieuses ont grandement profité et amélioré le développement des ambassades aux juridictions supérieures à un pays. Les pays d'Afrique en particulier ont augmenté leur présence diplomatique entre-eux et en dehors du continent. L'Europe est quand même restée essentielle à cette pratique: la Belgique, le Luxembourg et les pays scandinaves. L'accréditation multiple s'est présentée comme une alternative attractive et pertinente à l'accréditation unique, elle s'est même montrée aussi, voire plus efficace jusqu'à la fin des années 80 où la méthode d'enregistrement des données a neutralisé l'impact des accréditations multiples.
+
+Cependant, je n'ai pas réussi à montrer une différence entre l'intermédiarité empirique et l'intermédiarité mathématique. Les deux mesures étaient très corrélées, et je n'ai pas mené de test de causalité pour affirmer si ces corrélations étaient significatives et réelles ou non. 
+
+
+À ce jour, il existe toujours des ambassades qui mènent des relations avec plusieurs pays depuis un lieu fixe. Il existe aussi des traités qui permettent de déléguer ses missions de représentations à un allié. Les données mobilisées ont montré un défaut important qu'il faudrait combler en documentant ces pratiques dans la période après 1983, pour prouver que ce mode de représentation est puissant. Ne pas être accessible directement et ne pas avoir de relation bilatérale réciproque pourraient être la voie future de la diplomatie ?
+

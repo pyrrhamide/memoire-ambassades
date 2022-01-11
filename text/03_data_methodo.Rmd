@@ -1,0 +1,396 @@
+---
+title: "Données et Méthodologie"
+output: 
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+    number_sections: true
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+linestretch: 1.5
+indent: true
+bibliography: "biblio.bib"
+csl: rfs.csl
+---
+
+# Données et méthodologie {#data-methodo}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.align = "center")
+
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(janitor)
+library(RColorBrewer)
+
+source("../code/fonctions.R")
+
+f <- readRDS("../data/diplomatic_relations_all.rds")
+pays <- read.csv("../data/pays_clean.csv",encoding="UTF-8")
+
+source <- "\\\\textbf{Source}: Diplometrics, Diplomatic Representation (2016).\n"
+source2 <- "\\textbf{Source}: Diplometrics, Diplomatic Representation (2016).\\\\"
+
+champ_all <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 2013.\n"
+champ_clean <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 2013, relations rompues ou inexistantes exclues.\n"
+champ2 <- "\\textbf{Champ}: 206 entités étatiques, 1960 à 2013.\\\\"
+
+```
+
+```{r prep-tab}
+tri_bp <- f %>%
+  filter(niv_rep != 0) %>%
+  tri_plat(bon_port)
+
+tri_focus_lab <- f %>% tri_plat(focus_lab)
+```
+
+
+## Données
+
+### Description de la base _Diplometrics: Diplomatic Representation_
+
+Pour construire le réseau d'échanges diplomatiques, je mobilise la base de données _Diplometrics: Diplomatic Representation_ de 2016, par le Frederick S. Pardee Center for International Futures [@moyer2016]. Le but de cette base est de répertorier des données sur les relations diplomatiques à travers l'espace et le temps. À partir des archives du _Europa World Year Book_ et plus spécifiquement à partir de la section _Diplomatic Representation_, les concepteurs de la base ont compilé des données sur le nombre d'ambassades présentes ou accréditées pour un pays, dans un pays d'année en année. Au sein de chaque pays, le pays dont l'ambassade dépend et le type de représentant de cette ambassade sont inscrits. Au final, cette base longitudinale s'étend de 1960 à 2013 pour 206 entités étatiques^[Liste des pays disponible à l'annexe \ref{annexe-liste-pays}.], et catalogue `r nrow(f)` liens dont `r nrow(f[f$niv_rep!=0,])` qui ne sont ni rompus ni inexistants. Plusieurs de ces entités ont changé de nom lors de cette période ou ont disparu (réunification, dissolution, etc.)^[Voir annexe \ref{annexe-pays-change}]. Ce nombre important d'observations est encourageant et donne l'espoir d'obtenir des résultats probants.. 
+
+Cette base dépasse le cadre normatif établit par les Nations Unies et permet d'observer les relations avec des entités qui ne sont pas universellement reconnues, en plus d'avec celles qui n'existent plus. Comme j'ai mentionné dans la section \ref{def-pays}, j'utilise les mots pays ou nations de manière interchangeable pour parler de toutes les entités étatiques sans distinction de reconnaissance ou de statut souverain, dans un souci de généralisation et de simplification. Sur 206 pays de 1960 à 2013, la plupart sont des pays africains, suivis de pays européens et asiatiques.
+
+```{r plat-continent}
+note_pays <- "\\\\textbf{Note}: Continents comme définis par la Banque Mondiale pour les Indicateurs de Développement dans le monde.\n"
+
+pays %$%
+  questionr::freq(continent_fr, total = TRUE, valid = FALSE) %>% 
+  # tri_plat(continent) %>%
+  kbl(
+    caption = "Nombre de pays par continents dans la base de données (\\% en colonne)",
+    col.names = c("Effectifs", "Fréquences (%)"),
+    booktabs = T,
+    linesep = ""
+  ) %>% 
+  column_spec(2:3,width = "3.5cm") %>% 
+  footnote(
+    general = c(source, champ_all, note_pays),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+Les _Europa World Year Books_ permettent le recensement de trois types de pays, codés en trois variables dans l'ordre suivant fixé par les auteurs: une variable du pays pour lequel une mission de représentation est accréditée, une du pays "invité" (soit le pays ayant envoyé la mission), ainsi qu'une variable du pays dans lequel cette mission de représentation se situe physiquement. Par la suite, je me réfère principalement à ces types de pays par "pays ciblé ou destination", "pays expéditeur/invité/accréditant" et "pays récepteur/hôte/accréditeur" respectivement. Pour `r glue("{tri_bp$pourcent[2]}%")` des missions diplomatiques non-rompues de 1960 à 2013, le pays ciblé par cette mission est différent du pays hôte de la mission  (tableau \ref{tab:plat-bonport}). Autrement dit, l'ambassade accréditée pour représenter les intérêts d'un pays $A$ dans un pays $B$ ne se situe pas dans $B$ mais dans un troisième pays $C$. C'est ce type de relation indirecte entre l'expéditeur et la destination, arbitrée par un pays hôte qui m'intéresse particulièrement. À l'inverse, `r glue("{tri_bp$pourcent[1]}%")` des relations diplomatiques non-rompues de 1960 à 2013 entre une cible et un expéditeur sont directes. On observe déjà la prééminence du modèle "une mission pour un pays".
+
+```{r plat-bonport}
+lecture_plat_bonport <- "\\\\textbf{Lecture}: de 1960 à 2013, 11.6\\\\% des missions diplomatiques existantes étaient présentes dans un pays hôte qui n'était pas le pays ciblé par la mission de représentation implantée chez l'hôte.\\\\"
+
+tri_bp %>%
+  kbl(
+    caption = "Concordance des pays hôtes et pays cibles (\\% en colonne)",
+    col.names = c("", "Effectifs", "Fréquences (%)"),
+    booktabs = T
+  ) %>%
+  kable_styling(latex_options = "hold_position") %>%
+  footnote(
+    general = c(source, champ_clean, lecture_plat_bonport),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+Durant la période d'observation de 1960 à 1983, le nombre de liens diplomatiques a plus que triplé puis a connu une chute monumentale en 1984 (figure \ref{fig:graph-nbliens}). Passée cette année, le nombre de relations bilatérales a lentement augmenté. En reproduisant ce graphique en fonction de l'équivalence entre hôte et destination, on voit que ce sont les liens où les deux pays diffèrent qui ont fortement diminué en 1984, tandis que les liens directs ont positivement évolué pendant 53 ans. Ceci rejoint la remarque des auteurs, comme quoi les déclarations dans les archives des accréditations multiples, du type de la mission (ambassade ou légation) et du type de représentant ont fortement diminué après 1983.
+
+```{r graph-nbliens,out.width="49%",fig.show='hold',fig.cap="Nombre de liens diplomatiques, 1960 à 2013"}
+f %>% filter(niv_rep != 0) %>% count(year) %>%
+  ggplot(mapping = aes(year, n)) +
+  geom_line() +
+  labs(
+    x = "Année",
+    y = "Effectifs",
+    subtitle = "Total",
+    caption = "Source: Diplometrics Diplomatic Exchange.\nChamp: 2016 entités étatiques, 1960 à 2013, relations rompues et non-réciproques exclues."
+  ) +
+  theme_minimal() +
+  theme(plot.caption = element_text(hjust = 0)) 
+
+f %>% filter(niv_rep != 0) %>% count(year, bon_port) %>%
+  ggplot(mapping = aes(year, n, group = bon_port, color = bon_port)) +
+  geom_line() +
+  labs(
+    x = "Année",
+    y = "Effectifs",
+    subtitle = "Par correspondance des récepteurs et destinations",
+    color = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Une fois la retranscription des triades de pays complète, le type global d'une ambassade a été résumé par une variable ordinale en plusieurs catégories et niveaux, attribuant à chaque mission un code de un à trois chiffres. Pour une mission qu'un pays expéditeur accrédite pour un autre pays, ce code prend en compte l'emplacement de la mission au sein ou non du pays ciblé, le statut du représentant assigné à la mission, et enfin la nature de la mission. Avant 1984, les archives référençaient clairement la nature d'une mission comme une ambassade, ou comme une légation^[La légation est définie comme une "représentation diplomatique d'un gouvernement auprès d'un Etat où il n'a pas d'ambassade" [@larousseenligne]. `r f %>% filter(grepl("9",embassy_old)) %>% nrow` observations de la base sont des légations.], ce que les auteurs ont pris en compte jusqu'à ce que cette différenciation ne soit plus explicitée après 1983. Le résultat de cette classification complexe attribue à chaque lien diplomatique un type d'ambassade bien spécifique à partir duquel deux nouvelles variables découlent: une variable ordinale simplifiée du type de représentant avec l'ambassadeur.rice au plus haut niveau, ainsi qu'à la création d'une variable "d'attention diplomatique". 
+
+La variable de type de représentant est ordonnée en accord avec l'article 14 de la CVDR qui établit 3 classes de chefs de mission:
+
+1. Celle des ambassadeurs ou des nonces^[Représentants diplomatiques du Saint-Siège.] accrédités par les chefs d'Etat, et tout autre rang équivalent;
+1. Celle des envoyés, ministres ou internonces accrédités par les chefs d'Etat;
+1. Celle des chargés d'affaires accrédités par les Ministres des affaires étrangères.
+
+Les auteurs de la base ont ajouté deux autres catégories inférieures à ces trois classes, "_interest desk_" et tierce partie. Ces catégories ont toutefois des effectifs trop faibles pour être intéressants.
+
+La variable d'attention diplomatique est une variable catégorielle à 4 modalités sur le niveau d'attention diplomatique qu'accorde un pays invité à un pays ciblé: elle combine la présence de la mission au sein du pays ciblé ou non; et le type d'accréditation conférée au représentant, pour un seul pays ou pour plusieurs. Elle a été simplifiée davantage et réduite à 3 modalités sur le degré de priorité qu'une mission invitée accorde à la relation avec le pays ciblé, allant de la priorité absolue (la mission est uniquement accréditée pour le pays ciblé), passant par la priorité "partagée" (la mission est accréditée pour la cible et d'autres pays), à la relation inexistante ou rompue (renvoi, rupture, rappel, retrait).
+
+De 1960 à 2013, la grande majorité des missions de représentation non-rompues sont menées par des ambassadeurs et autres statuts équivalents, le grade le plus prestigieux (tableau \ref{tab:plat-emb-focus}). Le nombre d'ambassadeurs dans le monde a d'ailleurs continuellement augmenté au fil des années, allant de 64% des missions en 1960 à 94% en 2013. Quand on s'intéresse ensuite au degré de priorité des missions, on peut voir que, sur toute la durée d'observation, `r glue("{tri_focus_lab$pourcent[3]}%")` d'entre elles sont des missions uniques. Cette variable a également positivement évolué, au même titre que le nombre d'ambassadeurs, passant de 77% à 99% en 1960 et en 2013 respectivement. Les missions multiples quant à elles ont connu une chute importante et sont pratiquement inexistantes en 2013. Petit à petit, l'ordinaire diplomatique est incarné par le haut fonctionnaire en charge de la relation avec un seul pays.
+
+```{r plat-emb-focus}
+t1 <- f %>% filter(niv_rep!=0) %$% questionr::freq(embassy_lab, total = TRUE, valid = FALSE)
+t2 <- f %$% questionr::freq(focus_lab, total = TRUE, valid = FALSE)
+
+champ_plat_emb_focus <- "\\\\textbf{Champ}: 206 entités étatiques, 1960 à 2013. Les relations rompues ou inexistantes sont exclues de l'échantillon pour la variable du type de représentant.\n"
+lecture_plat_emb_focus <- "\\\\textbf{Lecture}: de 1960 à 2013, 76.8\\\\% des représentants diplomatiques dans le monde étaient des ambassadeurs. 14.2\\\\% des missions diplomatiques étaient accréditées pour plusieurs pays.\\\\"
+
+rbind(t1,t2) %>% 
+  kbl(booktabs = T,
+      caption = "Distribution des variables de représentant et de mission (\\% en colonne)",
+      col.names = c("Effectifs","Fréquences (%)")) %>% 
+  kable_styling(latex_options = "hold_position") %>% 
+  pack_rows("Type de représentant",1,7) %>%
+  pack_rows("Type de mission",8,11) %>%
+  footnote(
+    general = c(source, champ_plat_emb_focus, lecture_plat_emb_focus),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+En croisant les variables de type de mission et de correspondance entre pays hôte et pays cible (tableau \ref{tab:croise-bonport-focus}), on peut voir que pratiquement la totalité des missions uniques sont accréditées pour un pays dans lequel l'ambassade est physiquement présente, ce qui n'est pas une surprise. En revanche pour ce qui est des missions multiples, un quart d'entre elles sont "correctement" placées et accréditées: ce sont les intermédiaires entre les expéditeurs et les destinations. Les trois quarts restants correspondent à ces pays qui ne sont pas accessibles directement.
+
+```{r croise-bonport-focus}
+lecture_bonport_focus <- "\\\\textbf{Lecture}: pourcentages en ligne. De 1960 à 2013, 74.8\\\\% des missions accréditées pour plusieurs pays se situaient dans un autre pays que celui ciblé."
+
+f %>% 
+  filter(niv_rep!=0) %$% 
+  questionr::rprop(table(focus_lab,bon_port),
+                   digits = 1,
+                   n = TRUE,
+                   total = FALSE) %>% 
+  kbl(digits = 1,
+      booktabs = TRUE,
+      caption = "Distribution du type de mission en fonction de la correspondance entre pays ciblé et pays hôte (\\% en ligne)",
+      col.names = c("Hôte et cible correspondent",
+                    "Hôte et cible ne correspondent pas",
+                    "Effectifs")) %>% 
+  kable_styling(latex_options = "hold_position") %>% 
+  column_spec(2:3, width = "3.5cm") %>% 
+  footnote(
+    general = c(source, champ_clean, lecture_bonport_focus),
+    general_title = "",
+    footnote_as_chunk = T,
+    escape = F,
+    threeparttable = T,
+    symbol_manual = "",
+    fixed_small_size = T
+  )
+```
+
+À partir des variables simplifiées du type d'accréditation et du niveau d'attention diplomatique, les auteurs ont généré un index du niveau global de représentation allant de 0 à 1. 0 indique l'absence de relation entre pays, 1 indique que la mission est menée par un fonctionnaire du plus haut niveau consacrant ses efforts à un unique endroit, 0.75 pour les missions uniques menées par des personnes de grade inférieur à l'ambassadeur. Tous les scores inférieurs correspondent aux missions multiples, partagées entre l'hiérarchie des métiers. La distribution des scores, représentée par le graphique de la figure \ref{fig:graph-niv-rep}, confirme l'observation que le modèle "une ambassadrice, un seul pays" s'impose dans les relations diplomatiques, en particulier à partir des années 80.
+
+```{r graph-niv-rep, out.width="90%", fig.pos="h", fig.cap="Distribution des scores de niveau de représentation.\\\\Les scores compris entre 0.1 et 0.25 sont regroupés dans la modalité \"Autre\" en raison de leurs faibles effectifs.", fig.scap="Distribution des scores de niveau de représentation"}
+f %>%
+  mutate(
+    niv_rep = factor(niv_rep),
+    niv_rep = fct_lump(niv_rep, n = 5) %>%
+      fct_recode("Autre" = "Other") %>%
+      fct_relevel("Autre", after = 0)
+  ) %>%
+  count(niv_rep) %>%
+  mutate(perc = scales::percent(n / sum(n), accuracy = .1, trim = FALSE)) %>%
+  ggplot(mapping = aes(x = niv_rep, y = n)) +
+  geom_col(fill = "mediumpurple1") +
+  geom_text(
+    aes(label = perc),
+    vjust = -0.3,
+    fontface = "bold",
+    size = 3.5
+  ) +
+  scale_y_continuous(labels = scales::label_number()) +
+  labs(x = "Niveau de représentation",
+       y = "Effectifs",
+       caption = "Source: Diplometrics Diplomatic Exchange.\nChamp: 2016 entités étatiques, 1960 à 2013, relations rompues et non-réciproques exclues.\nLecture: 3.9% des missions diplomatiques de 1960 à 2013 étaient menées par\n des ambassadeurs (ou statuts équivalents) accrédités pour plusieurs pays.") +
+  theme_minimal() +
+  theme(plot.caption = element_text(hjust = 0),
+        axis.text.x = element_text(vjust = 5)) 
+```
+
+Les variables suivantes ont été ajoutées par mes soins, afin d'apporter des informations supplémentaires absentes dans le jeu de données de base: celle de concordance de l'hôte et de la cible, celles des continents et régions propres à l'expéditeur, à l'hôte et à la cible, ainsi qu'une variable de décennie.
+
+### Limites {#limites-data}
+
+Le changement des pratiques de retranscription des accréditations multiples après 1983 m'empêche de faire des analyses pertinentes sur la représentation diplomatique multiple pour les années plus récentes. La baisse du nombre de ce type de mission dans la base de données est expliquée par la diminution de leurs suivis, mais il devient impossible de connaître leurs portées dans la réalité actuelle, ce qui est regrettable. L'existence des ambassades à accréditations multiples est toujours d'actualité mais n'est pas dénombrer en détail, ce qui pourrait mener à une exploration supplémentaire dans le futur. Toutefois, dans le cadre de mon analyse, je choisis de faire une séparation des analyses entre l'avant et l'après 1983. 
+
+De plus, un cas de figure de représentation multiple est absent des données: celui où un pays $A$ n'a pas de représentation directe dans un pays $B$ et par conséquent confie la représentation de ses intérêts à un autre pays $C$ qui a une mission diplomatique chez $B$, au lieu de mobiliser une de ses propres ambassades à proximité. C'est une pratique notamment employée par le Grand-Duché de Luxembourg qui accrédite la Belgique ou même les Pays-Bas, et par plusieurs pays scandinaves qui s'accréditent entre eux dans les pays où l'un d'eux serait absent. Il s'agit d'une absence fâcheuse qui aurait pu ajouter plus de substance à mon argument sur l'importance des accréditations multiples, et que je ne sais pas comment contourner.
+
+## Méthodologie
+
+Pour expliquer les missions multiples et pour comprendre comment j'ai crée un réseau exploitable, je les schématise ici. 
+
+Voyons tout d'abord le schéma traditionnel de la relation diplomatique simple entre deux pays. Un pays $A$ veut établir une relation bilatérale avec un pays $B$, souverain ou non, reconnu par la communauté internationale ou non. $A$ ouvre alors une ambassade dans le pays $B$, avec une équipe qui gère les opérations diplomatiques et/ou consulaires quotidiennes, et maintient les relations avec ce pays d'accueil. La relation entre les deux nations est directe. Cette mission de représentation est accréditée pour B uniquement, elle est "unique". La figure \ref{schema-trad} illustre ce type de relation.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[node distance={20mm}, thick, main/.style = {draw, very thick, rectangle}] 
+\node[main, align=center] (1) {Pays $A$\\(expéditeur)}; 
+\node[main, align=center] (2) [right =of 1] {Mission du pays $A$ dans le pays $B$\\(récepteur)};
+
+\draw[->] (1) -- (2);
+\end{tikzpicture}
+\caption{Schéma traditionnel - mission unique et directe}
+\label{schema-trad}
+\end{figure} 
+
+Le deuxième cas de figure est celui de la mission de représentation destinée pour plusieurs nations. Un pays $A$ souhaite établir une relation diplomatique avec un pays $C$. Pour plusieurs raisons, financières, géographiques, humaines ou autres, l'implantation d'une mission physique chez $C$ n'est pas possible, incitant le pays qui souhaite créer un lien à employer une des stratégies précisées plus haut. Dans cet exemple, $A$ décide donc de mobiliser la mission ambassadoriale présente dans un pays $B$, pour mener les mêmes fonctions auprès de $C$. La relation entre $A$ et $B$ qui était auparavant directe et simple en raison de la priorité absolue que les équipes de $A$ consacraient à ses missions dans $B$, devient directe et multiple. De plus, un nouveau lien se crée entre $B$ et $C$ au nom de $A$ et s'ajoute à la relation de base entre $B$ et $C$ si celle-ci existe, tandis que $A$ et $C$ ont un lien indirect dépendant de $B$. La figure \ref{schema-alt1} illustre ce type de relation.
+
+Prenons l'exemple du Bénin: en 2021, ce pays "possède" 11 ambassades dans le monde, en accueille physiquement 20, et 34 autres ambassades sont accréditées pour lui depuis un autre pays [-@beninmae2021]. L'ambassade de la République du Bénin en France, basée à Paris, couvre 15 autres pays européens en plus de la France [-@benin2021]. Pour ce qui est des ambassades non-résidentes à destination du Bénin, la majorité sont présentes à Abuja, la capitale du Nigéria. L'agrément de tous les pays est essentielle pour que ces missions existent, pays accréditants comme accréditaires directs et indirects. Ceci montre que l'accréditation multiple est toute aussi importante que l'accréditation unique, au vu des juridictions très larges qui peuvent être accordées à une mission.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[node distance={20mm}, thick, main/.style = {draw, very thick, rectangle}] 
+\node[main, align=center] (1) {Pays $A$\\(expéditeur)}; 
+\node[main, align=center] (2) [right =of 1] {Mission du pays $A$ dans le pays $B$\\(récepteur)};
+\node[main, align=center] (3) [right =of 2] {Pays $C, D, ...$\\(destination)};
+
+\draw[->] (1) -- (2);
+\draw[->] (2) -- (3);
+\draw[->, dashed] (1) to[bend right=20] node[below] {indirect} (3);
+\end{tikzpicture} 
+\caption{Schéma alternatif 1 - mission accréditée pour plusieurs pays}
+\label{schema-alt1}
+\end{figure}
+
+Un troisième cas de figure intéressant survient quand le pays $A$ est complètement absent d'une zone géographique précise, et n'emploie pas de mission intermédiaire à la destination d'un troisième pays. À la place, le pays expéditeur délègue la représentation de ses intérêts à un deuxième pays présent physiquement dans un troisième pays: la mission de ce deuxième pays est accréditée par le premier dans le troisième, pour ce troisième et pour d'autres nations qui intéresseraient le pays de base.
+
+La figure \ref{schema-alt2} illustre ce phénomène de délégation. Dans la réalité, cette situation est applicable à des pays comme le Luxembourg dont la politique est que "dans les pays où [il] n'est pas représenté directement, les intérêts économiques luxembourgeois sont pris en charge par la Belgique" tandis que les missions de représentation politique sont confiées aux Pays-Bas [-@luxembourg2015]; elle est aussi applicable aux pays scandinaves. En effet, cette pratique est officialisée par le Traité de coopération de Helsinki entre le Danemark, la Finlande, l'Islande, la Norvège et la Suède [-@conseilnordique1962], dont l'article 34 stipule que les pays cités s'engagent à représenter les intérêts et à assister les citoyens de chacun dans un pays où un d'eux seraient absents. Cet exemple de coopération et de multiplication des responsabilités est un cas d'étude très intéressant, mais qui n'est pas étudié dans ce mémoire en raison de l'absence de données sur cette pratique. Il s'agit néanmoins d'un terrain que des recherches futures pourraient exploiter.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[node distance={20mm}, thick, main/.style = {draw, very thick, rectangle}] 
+\node[main, align=center] (1) {Pays $A$\\(expéditeur)}; 
+\node[main, align=center] (2) [right =of 1] {Mission d'un pays $B$ dans le pays $C$\\(récepteur)};
+\node[main, align=center] (3) [right =of 2] {Pays $E, F, ...$\\(destination)};
+
+\draw[->] (1) -- (2);
+\draw[->] (2) -- (3);
+\draw[->, dashed] (1) to[bend right=20] node[below] {indirect} (3);
+\end{tikzpicture} 
+\caption[Schéma alternatif 2 - représentation déléguée à la mission d'un autre pays]{Schéma alternatif 2 - représentation déléguée à la mission d'un autre pays (pas applicable dans ce mémoire)}
+\label{schema-alt2}
+\end{figure}
+
+Ces configurations des missions multiples introduisent des liens de différentes natures selon la position dans la triade. Les liens importants à noter sont le lien direct à but intermédiaire entrant dans le pays accréditaire, et le lien sortant du pays accréditaire vers le pays ciblé. La figure \ref{schema-tous-liens} résume tous les types de liens possibles.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[node distance={30mm}, thick, main/.style = {draw, very thick, rectangle}] 
+\node[main, align=center] (1) {Expéditeur}; 
+\node[main, align=center] (2) [right =of 1] {Récepteur};
+\node[main, align=center] (3) [right =of 2] {Destination};
+
+\draw[->] (1) to node[above] {direct principal} (2);
+\draw[->] (1) to[bend left=40] node[above, align=center] {direct\\intermédiaire\\\textit{in}} (2);
+\draw[->] (2) to[bend left=40] node[above, align=center] {direct\\intermédiaire\\\textit{out}} (3);
+\draw[->] (2) to node[above] {direct} (3);
+\draw[->, dashed] (1) to[bend right] node[below] {indirect} (3);
+\end{tikzpicture} 
+\caption[Schéma résumé - type de liens]{Schéma résumé - type de liens pour les missions multiples}
+\label{schema-tous-liens}
+\end{figure}
+
+### La création du réseau {#crea-reseau}
+
+La mise en forme des données inchangées avec trois pays par observation ne me permet pas de construire un réseau avec tous les liens possibles, ce qui rend la visualisation incomplète. Montrer uniquement les liens entre expéditeur et récepteur ignore les intentions du pays expéditeur envers un troisième acteur s'il y en a un; la paire expéditeur/cible ignore la réalité de l'emplacement des missions de représentation de l'expéditeur; tandis que la paire récepteur/cible cache l'origine de la mission du pays invité. J'ai donc décomposé les relations diplomatiques dans leur intégralité et leur ai attribué un score en fonction de leur nature afin d'exploiter et de présenter toutes les liaisons existantes. 
+
+Je travaille avec $n$ pays dans un ensemble $P=\{1,...,n\}$. Tout d'abord, je range les variables de pays dans l'ordre expéditeur, récepteur et destination. Cet ordre reflète la direction des liens diplomatiques. Le pays-expéditeur $i$ envoie son équipe. Si le pays-récepteur $j$ et le pays-destination $k$ sont les mêmes, la relation avec le pays-expéditeur est directe et vaut un score $\eta$ de 4. L'expéditeur $i$ est la source et le récepteur $j$ est la cible. Si le récepteur et la destination sont différents, ce qui signifie que le premier reçoit une mission accréditée pour la seconde, 3 scénarios s'appliquent: 
+
+* l'expéditeur (source) et la destination (cible) ont une relation indirecte. C'est le type de lien le plus "faible", j'attribue un score $\eta$ de 1;
+* l'expéditeur (source) et l'hôte (cible) ont une relation directe, avec l'expéditeur qui utilise sa mission implantée chez l'hôte comme l'intermédiaire pour atteindre la destination. Ma référence étant l'hôte, le lien entre les deux pays est entrant pour celui-ci, d'où l'utilisation de l'adjectif _in_. Cette relation est "moindre" car la relation est multiple au lieu d'unique, j'attribue un score $\eta$ de 2;
+* l'hôte (source) et la destination (cible) ont une relation directe. Le lien sort de l'hôte, d'où l'utilisation de l'adjectif _out_. L'hôte étant intermédiaire pour l'expéditeur, la relation hôte/cible vaut plus que expéditeur/hôte car l'expéditeur dépend du lien hôte/cible. J'attribue un score $\eta$ de 3.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[thick, auto, edge from parent fork down]
+\tikzstyle{level 1}=[sibling distance=7cm] 
+\tikzstyle{level 2}=[sibling distance=4cm] 
+
+\node{Expéditeur $i$ $\rightarrow$ Récepteur $j$ $\rightarrow$ Destination $k$}
+	child { node {$j = k$}
+      child {node[align=center] {$i \rightarrow k$ \\ direct, $\eta$ = 4}}
+  }
+	child { node {$j \neq k$}
+      child {node[align=center] {$i \rightarrow k$\\ indirect, $\eta$ = 1}}
+      child {node[align=center] {$i \rightarrow j$\\ direct \textit{in}, $\eta$ = 2}}
+      child {node[align=center] {$j \rightarrow k$\\ direct \textit{out}, $\eta$ = 3}}
+  }
+;
+\end{tikzpicture}
+\caption{Construction du réseau - les différents cas de figure, schématisés}
+\label{crea-liens}
+\end{figure}
+
+<!-- Ajouter reste de la démarche pour les sommes et tout ça ? -->
+
+<!-- \textcolor{red}{Par rapport aux scores: étant donné que les missions multiples sont mon objet d'intérêt, devrais-je leur donner un score plus élevé que les liens directs ? Je veux aussi normaliser ces scores, pour pouvoir les comparer d'année en année. Je sens qu'il faut utiliser le nombre de nœuds et/ou de liens, et éventuellement la moyenne/l'écart-type, j'aimerais bien avoir vos conseils dessus.} -->
+
+La figure \ref{crea-liens} résume les différents scénarios appliqués pour obtenir tous les liens $e(i,j)$ existants source/cible, avec leur score en fonction de leur nature. C'est ma liste des liens. Avec cette démarche, plusieurs dyades sont doublées mais ont un score différent selon la nature du lien: j'additionne donc les scores $\eta_{e(i,j)}$ pour chaque dyade pour obtenir son "poids" $\delta_{e(i,j)}$. Plus le poids d'une dyade est important, plus elle est exploitée par les autres nations du monde en plus de la relation directe entre les deux nœuds. Toutefois, la distribution des poids ne sera pas identique selon les intervalles de temps étudiés, ce qui empêche une comparaison robuste des liens dans le temps: il faut normaliser cette mesure de poids. Je divise le poids d'une dyade $ij$ par celui de la dyade $kl$ au poids maximal. Ce rapport compris entre 0 et 1 est la proportion que le lien $e(i,j)$ représente par rapport au lien $e(k,l)$. Je le multiplie par 100 pour obtenir le pourcentage.
+
+\begin{figure}[h]
+\centering
+{\def\arraystretch{1.8}\tabcolsep=10pt
+\begin{tabular}{cccc}
+\toprule
+Source      & Cible       & Poids          & Poids normalisé         \\ \midrule
+$i$ & $j$ & $\delta_{e(i,j)} = \sum_{ij} \eta_{e(i,j)}$ & $\delta\prime_{e(i,j)} = \frac{\delta_{e(i,j)}}{\delta_{max}}*100$ \\
+$j$ & $i$ & $\delta_{e(j,i)}$ & $\delta\prime_{e(j,i)}$ \\
+$j$ & $k$ & $\delta_{e(j,k)}$ & $\delta\prime_{e(j,k)}$ \\ \bottomrule
+\end{tabular}
+}
+\caption{Construction du réseau - illustration de la table des liens}
+\label{crea-tab-liens}
+\end{figure}
+
+Il s'agit maintenant d'allouer un score par pays à partir de cette liste des liens: ce sera ma liste des nœuds[, avec le score comme un attribut d'un nœud]. Pour chaque nœud $i$, j'additionne les poids de tous les liens pour lesquels ce nœud est la source, pour obtenir un poids sortant du nœud $i$ qui pourrait miroiter la centralité de demi-degré extérieur. Cette mesure calcule le nombre de liens sortants d'un nœud, indicateur de la sociabilité d'un noeud, tandis que la mienne mesure le poids des liens sortants d'un nœud: plus ce poids est élevé, plus un nœud est la source de liens forts. Replacé dans le contexte diplomatique, un pays avec un fort poids sortant peut être un grand expéditeur qui multiplie sa présence à l'étranger, un grand récepteur de missions multiples, ou les deux. De manière plus formelle, pour tout pays $i$ appartenant à $P$, son poids sortant est défini par: $$\delta_{out} (i) = \sum_{i \neq j \in P} \delta_{e(i,j)}$$ 
+
+À ce poids sortant, je joins la somme des poids pour les nœuds cibles, soit un poids entrant du nœud $i$ rappelant la centralité de demi-degré intérieur. Cette dernière calcule le nombre de liens entrants d'un nœud, indicateur de la popularité d'un noeud, la mienne calcule le poids des liens entrants: un chiffre élevé indique que les liens dont le nœud est la cible sont forts. Il s'agirait d'un pays qui serait soit un grand récepteur de missions de représentation uniques ou multiples, soit une destination très prisée par un grand nombre de gouvernement et indirectement accessible. Pour tout pays $i$ appartenant à $P$, son poids entrant est défini par: $$\delta_{in} (i) = \sum_{i \neq j \in P} \delta_{e(j,i)}$$
+
+En dernier lieu, je fais la somme de ces poids pour obtenir le poids total d'un noeud/pays dans le réseau. Cette mesure est semblable à celle de la centralité de degré, qui compte le nombre de liens qui passent par un noeud.
+
+Ma démarche présente un grand inconvénient: les variables de type de représentant et de type de mission sont mises à l'écart une fois mes tables des liens et nœuds construites. C'est une perte d'information importante, mais je peux la contourner en filtrant l'échantillon sur lequel j'applique mes fonctions.
+
+### Analyses quantitatives
+
+Ce mémoire a pour but de mettre en lumière les pays et les liens cachés par les acteurs dominant les relations internationales en se concentrant sur le réseau des ambassades multiplement accréditées. Il souhaite aussi mesurer l'importance du réseau de missions multiples par rapport à celui des missions uniques.
+
+Dans une démarche exploratoire supplémentaire de la base de données, je regarde la relation que chaque continent a avec les missions multiples en calculant la part de missions multiples sur le nombre de missions totales. J'effectue aussi des tris à plat pour exposer le classement des 20 premiers pays envoyant, accueillant, et étant ciblé par les missions multiples sur l'ensemble de la période d'observation. Je compare ce classement à celui des 20 premiers pays envoyant et recevant des missions à accréditations uniques. À partir de ces valeurs, je fais une Analyse en Composantes Principales pour déterminer s'il y a des catégories de pays dans le réseau multiple. J'expose ensuite les dyades qui se répètent le plus, entre le pays hôte et le pays représenté et entre l'hôte et le pays ciblé. 
+
+<!-- [Tris croisés ? Observations des liens insolites, représentation graphique grossière?] -->
+
+Je présente par la suite des représentations cartographiques du réseau des liens diplomatiques multiples par décennie. J'ai choisi de regrouper les observations par décennie car les évolutions politiques et diplomatiques ne sont pas instantanées: j'ai préféré la décennie après avoir observé les structures des réseaux année par année, puis par 5 années réunies et enfin 10; les différences sont moindres entre 5 et 10 ans, j'ai donc choisi la décennie dans l'espoir de voir de plus grandes différences. Comme établi plus haut (section \ref{crea-reseau}), les listes des liens et des nœuds contiennent des mesures de poids que j'applique à la visualisation de la manière suivante: le poids des liens détermine l'épaisseur du trait du lien, le poids entrant du noeud détermine la taille de celui-ci, et le poids sortant détermine la couleur du noeud.
+
+Je compare ensuite la structure des réseaux multiples, uniques, et les réseaux complets combinant les deux types par décennie, avec un tableau résumant les différentes mesures standards de l'analyse des réseaux: la densité, la transitivité, le diamètre et la distance moyenne. Il s'agit ici de déterminer si le réseau des missions multiples est aussi performant que les autres.
+
+Enfin, j'en viens à la comparaison entre les missions intermédiaires et la centralité d'intermédiarité: je présente un tableau des corrélations entre les poids entrants, sortants et totaux des noeuds comme je les ai calculés plus haut, avec la mesure de centralité d'intermédiarité. J'ai aussi calculé la corrélation de ces trois poids avec la centralité de demi-degré entrant, sortant et générale respectivement.
+
+### Note sur le choix de projection {-}
+
+J'utilise le logiciel _gephi_ pour visualiser les réseaux: l'épaisseur des liens et la couleur et la taille des noeuds sont mis en forme en fonction des différentes mesures de poids comme j'ai expliqué plus haut. Les nœuds/pays sont répartis selon leur position géographique (latitude et longitude), et sont placés au dessus d'un fond de carte du monde en projection Mercator. Il arrive que certains nœuds ne soient pas exactement placés, car j'ai dû les déplacer pour éviter des chevauchements qui rendaient la lecture compliquée. J'ai fait ce choix pour avoir une représentation cartographique du réseau qui est immédiatement compréhensible pour la majorité de la population, au détriment d'une représentation graphique qui aurait permis de voir les noeuds les plus proches entre eux. La représentation graphique était toutefois difficilement lisible étant donné la forte densité des réseaux, ce qui confortent mon choix. 
+
+<!-- [définir ce qu'est un réseau (nœuds, liens, dyades, etc.)] -->
+
+
+

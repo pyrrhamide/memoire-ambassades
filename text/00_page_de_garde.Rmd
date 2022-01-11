@@ -1,0 +1,79 @@
+---
+output: pdf_document
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+linestretch: 1.5
+indent: true
+header-includes:
+    - \usepackage{ragged2e}
+---
+
+\begin{titlepage}
+
+\par
+\raisebox{-.5\height}{\includegraphics[width=4cm]{ehess.png}}
+\hfill
+\raisebox{-.5\height}{\includegraphics[width=5cm]{ens-psl.png}}
+\par
+
+\vspace{1cm}
+\begin{center}
+
+\textit{Master Sciences Sociales - Parcours Quantifier en Sciences Sociales}
+
+2020-2021
+
+\vspace{5mm}
+
+\textsc{Mémoire de recherche}
+
+\vfill 
+
+{\LARGE\bfseries Multiplier ses liens sans multiplier ses accès\par}
+
+{\Large Étude du réseau diplomatique des ambassades multiples\par}
+
+\vfill
+
+{\large\itshape Soutenu par}
+
+{\large Kanto Fiaferana}
+
+\vspace{5mm}
+
+\textit{Session}
+
+Septembre 2021
+
+\vspace{5mm}
+
+\textit{Directrice}
+
+Paola Tubaro
+
+\vspace{5mm}
+
+\textit{Rapporteure}
+
+Marie Plessz
+
+\end{center}
+\end{titlepage}
+\newpage
+
+\pagenumbering{roman}
+
+\phantomsection
+\addcontentsline{toc}{section}{Remerciements}
+\section*{Remerciements}
+
+Je tiens à remercier Paola Tubaro, qui a dirigé et guidé mon mémoire et dont les retours m'ont beaucoup aidée, en particulier pour la méthodologie. Merci aussi pour vos encouragements. Je remercie également Marie Plessz pour avoir accepté d'être rapporteure de mon mémoire et pour m'avoir donné beaucoup de conseils sur la structure d'un mémoire et sur comment m'organiser. Enfin, merci à Florence Maillochon qui a remarqué que je confondais la centralité d'intermédiarité avec "l'intermédiarité" dans le réseau diplomatique, remarque à partir de laquelle j'ai enfin réussi à formuler une problématique.
+
+\vspace{.5cm}
+
+Alicia, Cassandra, Ricardo, Estelle, et tous mes amis d'ici et d'ailleurs: vos soutiens, conseils et discussions étaient indispensables. Vous avez pris soin de moi durant ces moments où je ne voulais plus rien faire. Du fond du coeur, merci.
+
+\newpage
+
+\textit{Pour ma Mamie.}

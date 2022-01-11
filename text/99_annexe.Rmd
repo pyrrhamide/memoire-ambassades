@@ -1,0 +1,79 @@
+---
+output: 
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+    number_sections: true
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+---
+
+\begin{appendices}
+\titleformat{\section}{\Large\bfseries}{Annexe \thesection.}{1em}{}
+
+
+```{r annexe-setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.align = "center")
+
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(janitor)
+
+source("~/memoire-ambassades/code/fonctions.R")
+
+f <- readRDS("~/memoire-ambassades/data/diplomatic_relations_all.rds")
+pays <- read.csv("~/memoire-ambassades/data/pays_clean.csv",encoding="UTF-8")
+```
+
+\section{Données et méthodologie}
+\subsection{Liste des pays de la base \textit{Diplometrics: Diplomatic Representation}}\label{annexe-liste-pays}
+`r str_c(pays$label,collapse=", ")`. 
+
+Les entités contestées ou qui ne sont pas un état membre de l'ONU sont: la Chypre du Nord, le Kosovo, Montserrat, le Saint-Siège, et Taïwan.
+
+\subsection{Liste des pays qui ont changé} \label{annexe-pays-change}
+```{r plat-paysautre}
+pays_autres <- read.csv2("~/memoire-ambassades/data/pays_autres.csv",encoding = "UTF-8")
+pays_autres %>% 
+  kbl(caption = "Pays anciens et nouveaux",
+      booktabs = T,linesep="") %>% 
+  kable_styling(font_size = 10, latex_options="HOLD_position")
+```
+
+\section{Résultats}
+
+\subsection{Cartes supplémentaires} \label{annexe-cartes}
+
+\begin{figure}[hp]
+\centering
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/simple_annees60.png}
+\caption{Années 60}
+\end{subfigure}
+\end{figure}
+
+\begin{figure}[hp]
+\centering
+\ContinuedFloat
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/simple_annees70.png}
+\caption{Années 70}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.9\textwidth}
+\centering
+\includegraphics[width=1\textwidth]{../graphics/simple_annees80.png}
+\caption{Années 80}
+\end{subfigure}
+
+\caption{Réseau des ambassades à accréditations multiples, par décennie.}
+\label{annexe-graph-decades}
+\end{figure}
+
+\end{appendices}

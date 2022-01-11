@@ -1,0 +1,38 @@
+\usepackage{ragged2e} % alignement
+\usepackage{setspace} % espace entre les lignes
+
+% pour les diagrammes
+\usepackage{tikz}
+\usetikzlibrary{positioning, trees}
+
+% pour les titres de tables et figures
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{format=hang,font=small}
+\captionsetup[table]{name=Tableau}
+\captionsetup[figure]{name=Figure}
+
+% pour...les mots?
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% pour numéros des figures et tables selon section, et non continu
+\usepackage{chngcntr}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+
+% pour afficher "Chapitre" avant chaque titre de section
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{Chapitre \thesection.}{1em}{}
+
+\usepackage[toc,title,page]{appendix}
+
+\usepackage{hyperref}
+\hypersetup{
+    pdftitle = {Kanto Fiaferana - Mémoire M2 QESS},
+    pdfauthor = {Kanto Fiaferana}
+}
+
+\usepackage{amsthm}
+\newtheorem{hyp}{Hypothèse}

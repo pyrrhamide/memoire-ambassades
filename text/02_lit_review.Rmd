@@ -1,0 +1,162 @@
+---
+title: "Revue de la littérature"
+output: 
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+    number_sections: true
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+linestretch: 1.5
+indent: true
+# bibliography: biblio.bib
+# csl: asrlf.csl
+---
+
+# Revue de la littérature {#lit-review}
+
+## La représentation diplomatique entre les nations
+
+Selon la théorie libérale, la collaboration internationale est nécessaire pour garantir la paix, la sécurité et la liberté dans le monde. La coopération nourrit l'amélioration des conditions de vie de tous, la raison, inhérente à la nature humaine, régit les actions, l'avancement de l'un bénéficie à l'autre et vice versa. L'interdépendance entre pays créé des intérêts partagés qui poussent les gouvernements à négocier et à communiquer entre eux.
+
+Le but ultime est donc d'éviter le conflit, d'où la nécessité d'établir des liens diplomatiques avec beaucoup de pays du monde. Il s'agit ici de définir les notions de pays, de relations internationales et de diplomatie pour comprendre les intérêts et les motivations du développement des accréditations multiples.
+
+### Définir le pays {#def-pays}
+
+La définition de la nation par Mauss me semble la plus claire et la plus appropriée pour ce mémoire. Cette définition se base sur le désir de la paix entre les nations, le désir de solidarité internationale après la Première Guerre Mondiale et sur la peur de la reproduction d'une grande guerre dévastatrice.
+
+@fournier2004 et @ramel2004 présentent la nation de Mauss: la nation est une société non-segmentaire, ou matériellement et moralement intégrée, où les clans n'existent plus et sont regroupés en une société qui possède un pouvoir central stable et permanent, contrairement à l'état et à l'empire qui sont des formes inférieures de gouvernance. Cette société est unie politiquement, juridiquement et économiquement par des systèmes de législation et d'administration adoptés et suivis par les individus. Ces derniers connaissent et appliquent les notions des droits et devoirs du citoyen, et des droits et des devoirs de la patrie. Le territoire de la nation possède des frontières déterminées: au sein de ces frontières, il y a une homogénéité ou "spécificité" culturelle propre à la société, une "volonté générale, consciente, constante" que partagent collectivement les individus de la nation, au point de créer une appartenance nationale et une culture nationale. La nation moderne et parfaite a "sa civilisation, esthétique, morale et matérielle, et presque toujours sa langue. Elle a sa mentalité, sa sensibilité, sa moralité, sa volonté, sa forme de progrès, et tous les citoyens qui la composent participent à l'Idée qui la mène" [@fournier2004 210 citant Mauss].
+
+Peu de sociétés répondent à tous ces critères. Celles qui le sont sont rares et récentes, et sont donc imparfaites. Elles sont aussi fragiles et inégales. Pour Mauss, le Royaume-Uni, la France et l'Allemagne sont les nations "les plus élevées", tandis que la Suisse et la Norvège sont des modèles de "petites nations".
+
+Il existe donc une grande solidarité et une fierté dans la nation qui s'enseignent dans l'éducation, les sciences et la culture. Il faut promouvoir ce qui a été créé dans la nation, par la nation. Cette fierté nationale ne peut se construire que si elle est en opposition avec l'étranger qui a sa propre culture. L'opposition encourage l'amélioration, mais Mauss refuse de tomber dans le nationalisme et le fétichisme national qui ont été le piège de la guerre. Selon lui, toutes les sociétés qui évoluent vers la nation connaissent le développement de la culture et de la solidarité nationales; cette expérience commune crée une solidarité inter-nations destinée à l'amélioration des conditions de tous, ouvrant la porte à l'internationalisme.
+
+Replacée dans le contexte du mémoire, cette définition de la nation permet de comprendre pourquoi les nations voudraient communiquer et travailler ensemble.
+La conscience d'une nation fait réaliser qu'il y en a d'autres autour de soi avec lesquelles elle peut collaborer pour éviter des désastres monumentaux. Elle garde tout de même ses priorités et sa culture qui la définissent et qu'elle peut promouvoir ailleurs, sans pour autant les imposer. Cette définition est toutefois très critique des sociétés qui ne remplissent pas ses critères, ce qui place les nations qui n'ont pas une grande présence internationale en-dessous des "plus élevées" qui se vantent ouvertement de leur réseau diplomatique étendu. 
+
+Dans un souci de généralisation et pour éviter les répétitions, j'emploie les termes nation, état et pays indistinctement. Cette décision combine les dimensions culturelles, gouvernementales et territoriales des trois mots, j'en suis consciente.
+
+Cette base m'incite maintenant à définir les relations internationales.
+
+### Définir les relations internationales 
+
+Il y a de plus en plus d'interactions sociales à l'échelle internationale, ce qui implique de plus en plus de dépendance entre les nations.
+
+Toujours selon la théorie libérale, l'être humain est naturellement bon et coopératif au lieu de méfiant, égoïste et violent comme stipule la théorie réaliste. Le premier est social et veut éviter la guerre en utilisant la science, la raison et la rationalité. Le second veut dominer pour se protéger et survivre. L'internationalisme de Mauss se rapproche du premier cas: la nation est un rassemblement d'individus conscients qui coopèrent pour respecter les droits et devoirs du citoyen et de la patrie, les nations coopèrent entre elles en multipliant les échanges pour garantir la paix, le progrès, et les "individualités collectives" qui sont la liberté, la dignité, la singularité et la grandeur. Une société ne peut pas être isolée dans un monde constitué de sociétés qui ont des ressources différentes pouvant être utiles à tous. La solidarité entre les sociétés/nations est donc normale, et Mauss possède les preuves de l'intensification des interdépendances des sociétés modernes, et donc du développement des relations internationales [@fournier2004 211; @ramel2004 232]:
+
+1. Les systèmes économiques des nations sont progressivement mis en commun. Le marché mondial et la division du travail entre sociétés sources de matières premières et sociétés manufacturières le prouvent;
+1. L'interdépendance morale est accrue. L'établissement de la charte des Nations Unies définissant les buts et les principes de l'organisation, qui requiert la signature puis la ratification des Etats membres, en est un exemple. Les Etats membres sont théoriquement liés par des valeurs communes qui sont compliquées à ignorer dans un grand groupe;
+1. La volonté des peuples de ne plus faire la guerre et d'avoir la paix;
+1. Les limitations des souverainetés internationales. L'appartenance à un groupe, comme la Société des Nations ou l'Union Européenne, nécessite une modification des pratiques et des lois de la nation.
+
+Pour résumer, l'existence d'instances internationales et des phénomènes internationaux tels que le développement et le maintien du droit international sont des gages de la volonté des nations à être égalitaire, à connaître la paix et à appliquer des droits et des morals semblables à leurs homologues étrangers. Ces institutions sont le fruit de négociations qui ne peuvent pas exister sans communication et donc sans relation entre les partis. Ce sont des relations internationales. Celles-ci prennent plusieurs formes concrètes et matérielles de communication entre sociétés: des formes économiques avec des aides au développement, des formes techniques comme les télécommunications, des formes esthétiques comme les concours de beautés, des formes religieux, linguistiques ou juridiques...ce mémoire se concentre sur une forme politique: les diplomates et les ambassades. L'amélioration et le développement de ces moyens sont des symboles de l'intensification des relations internationales.
+
+### Définir la diplomatie {#def-diplomatie}
+
+Le but des relations internationales est d'éviter le conflit par la coopération. Un véhicule de communication est donc nécessaire pour que chaque entité ait une relation avec une autre. Les Nations Unies, les organisations régionales, les organisations non gouvernementales sont des outils aptes à la tâche: dans ces sphères, un pays délègue son pouvoir et sa souveraineté à une entité théoriquement plus puissante. Tout le monde le fait donc tout le monde est sur le même pied d'égalité, mais fondamentalement, les relations diplomatiques bilatérales sont les formes les plus élémentaires des relations internationales. La relation bilatérale est propre et unique à deux pays qui travaillent pour leurs intérêts communs sans doute plus proches que ceux entre plus de deux pays. De ce fait, la diplomatie est un outil de qualité pour s'arranger et construire le monde ensemble.
+
+Les relations diplomatiques sont différentes de la représentation diplomatique permanente: les premières sont simplement les échanges et contacts entre états, au niveau ministériel, ou diplomatique, ou à n'importe quelle instance où un haut fonctionnaire d'un pays interagit avec un autre. Ces échanges s'effectuent dans un contexte bilatéral ou multilatéral, par exemple aux Nations Unies. Les relations diplomatiques peuvent prendre une forme supérieure quand un Etat accrédite formellement un diplomate à le représenter dans un autre Etat. Cette procédure est encadrée et régie par la Convention de Vienne sur les Relations Diplomatiques [CVRD, @nationsunies1964] et par la Convention de Vienne sur les relations consulaires [@nationsunies1967]. Les relations consulaires sont plutôt d'ordre administratif et destinées à la sauvegarde des intérêts des ressortissants. Les relations diplomatiques sont basées sur le respect mutuel et la bienséance.
+
+La représentation diplomatique "formelle", selon les Nations Unies et la CVRD, remplit les points suivants:
+
+* Un consentement mutuel entre les états est nécessaire pour établir des relations diplomatiques entre eux (art.2), ils doivent également être d'accord sur la nomination du chef.fe de mission et son personnel diplomatique.
+* Une mission diplomatique doit (art.3):
+  * "Représenter l'état accréditant (l'état d'envoi) auprès de l'état accréditaire (l'état hôte de la mission)"; 
+  * Protéger les ressortissants de l'état accréditant présents dans l'état accréditaire; 
+  * Négocier, s'informer et rapporter l'actualité du pays accréditaire au pays accréditant; 
+  * "Promouvoir des relations amicales et développer les relations économiques, culturelles et scientifiques entre l'Etat accréditant et l'Etat accréditaire."
+
+La diplomatie a donc un rôle officiel avec une utilité précise et définie qui motive l'établissement d'une relation. Elle est également un outil de reconnaissance, de prestige et de signalisation auprès des autres membres de la sphère diplomatique [@kinne2014]. Les liens diplomatiques agissent comme des symboles d'approbation ou de désapprobation des politiques d'un pays, et sont aussi des signaux envoyés à ses partenaires. L'importance que les gros acteurs de la diplomatie accorde aux missions diplomatiques crée l'idée que les missions diplomatiques sont des sources de prestige et de statut, ce qui encourage les petits acteurs à envoyer des chefs de missions au statut prestigieux chez les grands acteurs pour exprimer leur existence. Un plus grand nombre d'ambassadeurs présents dans un pays de résidence augmente le prestige du pays de résidence, puisque les autres nations du monde attribuent beaucoup d'importance au pays de résidence. Ce prestige est ensuite partagé avec les pays où le pays de résidence enverra des ambassadeurs [@singer1966;@small1973]. La diplomatie est un système de rayonnement international, y adhérer devient impératif pour être vu favorablement par ses paires, la pression du réseau global diplomatique incite à multiplier sa présence physique à tout prix.
+
+<!-- composition of diplomacy: @singer1966, @small1973 -->
+
+<!-- * Identifier les changements et l'extension de l'adhésion au système international, classifier les membres de ce système en fonction de statut et de l'importance que leur donnent les autres membres, à travers le temps. Importance synonyme de réputation d'un individu aux yeux des autres dans le même système social, ici représentation diplomatique. -->
+<!--   * "to the extent that any nations's policy-makers consider another nation as an important coactor in the community, they will allocate or withhold their attention, resources and capabilities in dealing with it.", statut et popularité d'un état déterminés par ses interactions avec le reste du monde [@adler-nissen2011]. -->
+<!--   * hiérarchisation des nations selon  -->
+<!--     * (1) le statut du représentant accrédité dans une nation de résidence (i.e. la classe à laquelle il appartient) qui donne plus ou moins de points **à la nation de résidence** et non à la nation d'envoi (quoique changement dans l'article de 1973, où la simple présence d'un représentant valait 1 point donc nombre de missions présentes dans un pays, sans distinction de classe). Somme des points = score du pays de résidence, le plus grand le nombre est, le plus de représentants à haut statut sont accrédités pour le pays de résidence. -->
+<!--     * (2) importance diplomatique du pays d'envoi: pour un pays hôte, somme des scores construits en 1 des pays présents dans le pays hôte. En reprenant l'exemple donné par les auteurs: le représentant français au Mexique vaut plus que le représentant belge, car la communauté internationale donne plus d'importance à Paris. Prestige du pays expéditeur pèse dans prestige du pays hôte. -->
+<!-- * Opposition statut collectif dans le context multilatéral (importance que toutes les autres nations du système attribuent à un de ses membres), et statut individuel dans le context bilatéral (importance qu'une nation du système attribue à un de ses membres). -->
+<!-- * Evolution de la position dans le classement dans le temps comme indice de la mobilité sociale dans la communauté internationale. -->
+<!-- * Importance générale, pas régionale ou par rapport à un problème. -->
+<!-- * Résultats, période 'moderne' après-guerre: USA, FRA, GB, IT, BEL -->
+
+<!-- Emplacement ambassades: @vogeler1995, explication des échanges d'ambassades selon leur emplacement (hébergée ou envoyée). Cartographie de l'écart entre le nombre d'ambassades envoyées et le nombre d'ambassades hébergées par un pays, en 1988. Autant d'ambassades envoyées que hébergées pour les États-Unis qui maintiennent des relations strictement réciproques. Plus d'ambassades hébergées que envoyées (par pays - Belgique et des pays de la côte Est de l'Afrique. Par région - tous les pays de l'Europe de l'Est, majorité Europe Ouest + "western industrialised countries"). Plus d'ambassades envoyées que hébergées (par pays - les deux Corées, de la Bulgarie, la Tchécoslovaquie, l'Hongrie, la Chine et la Pologne. Par région - majorité Afrique). -->
+
+<!-- 4 types de lieu pour une ambassade, reproduction de @vogeler1995 -->
+
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \begin{tikzpicture}[node distance={20mm}, thick, main/.style = {draw, very thick, rectangle}]  -->
+<!-- \node[main, align=center] (host) {Pays hôte}; -->
+<!-- \node (dummy1) [above=of host] {}; -->
+<!-- \node (dummy2) [below=of host] {}; -->
+<!-- \node[main, align=center] (1) [left=of dummy1] {Pays étranger};  -->
+<!-- \node[main, align=center] (2) [right=of dummy1] {Pays étranger}; -->
+<!-- \node[main, align=center] (3) [left=of dummy2] {Pays étranger};  -->
+<!-- \node[main, align=center] (4) [right=of dummy2] {Pays étranger}; -->
+
+<!-- \draw[->] (host) to node[right=1cm, align=center] {Ambassade envoyée\\uniquement} (2); -->
+<!-- \draw[draw=none] (host) to node[right=-1cm] {Pas d'ambassade} (4); -->
+<!-- \draw[->] (3) to node[left=1cm, align=center] {Ambassade hébergée\\uniquement} (host); -->
+<!-- \draw[<->] (host) to node[left=1cm, align=center] {Ambassade hébergée\\et envoyée} (1); -->
+<!-- \end{tikzpicture} -->
+<!-- \caption[Type d'emplacement d'ambassades]{Type d'emplacement d'ambassades - reproduction de Vogeler (1995, p.324)} -->
+<!-- \label{schema-emblocation-vogeler} -->
+<!-- \end{figure}  -->
+
+Les recherches précédentes étaient concentrées sur la structure globale du réseau de diplomatie et ses plus gros acteurs que ce soit en physique [@singer1966;@small1973;@vogeler1995] ou en virtuel [@sevin2019]. Elles ont établi une hiérarchie du prestige et de l'importance des nations, basés sur le nombre pur et dur.
+
+Ces recherches ont distingué plus ou moins les mêmes pays, comme les Etats-Unis, la France, la Belgique, l'Allemagne, le Royaume-Uni. Ce sont des pays qui maintiennent des liens physiquement et strictement réciproques et donc sont très connectés et présents dans le réseau diplomatique. Ils portent le prestige que d'autres pays leur accordent et en font un point de fierté en affichant leur position dans le réseau diplomatique sur des documents étatiques à destination du public. Toutefois, ce n'est plus le cas qu'un pays ignore complètement diplomatiquement un autre, il existe des alternatives pour contourner l'absence physique d'une relation, ce qui pourrait changer les perceptions de réciprocité, de centralité et de quels pays sont les plus importants. Une des solutions les plus répandues est l'accréditation d'une ambassade à remplir ses fonctions dans plusieurs pays, depuis une ambassade physique fixe. 
+
+## Multiplier sa portée internationale sans être physiquement présent - le rôle des "intermédiaires diplomatiques"
+
+Tous les pays du monde ne peuvent pas et ne veulent pas établir des relations diplomatiques avec l'entièreté des autres pays du monde. Depuis la fin de la Seconde Guerre Mondiale, il n'y a des preuves de relations diplomatiques qu'entre seulement un tiers de toutes les paires de pays possibles, réciproquement liées [@neumayer2008; citant @bayer2006]. Envoyer une équipe diplomatique dans tous les pays du monde est une dépense importante qui n'est pas acquise pour tous. Créer et entretenir toutes les relations bilatérales possibles n'est pas utile, rentable et rationnel pour tous, mais quelques facteurs comme la proximité géographique, le pouvoir économique et militaire des deux pays et les affinités idéologiques (démocratie contre autocratie) augmentent la probabilité d'établir une connexion avec un pays sont décisifs pour créer un lien [@neumayer2008; @moyer2020]. Il n'est toutefois pas question de délaisser les états qui seraient trop loins, trop faibles ou aux valeurs contraires aux siennes: des stratégies sont alors employées pour construire sa présence indirecte chez les états injoignables [@rana2020]. 
+
+Celle qui m'intéresse consiste à autoriser un ambassadeur et son équipe à mener leurs missions pour plusieurs pays au lieu d'un, depuis un pays de résidence fixe, par le biais de l'accréditation multiple de l'ambassade. C'est la méthode la plus traditionnelle et la plus ancienne, qui est autorisée par l'article 5.1 de la CVRD: "l'Etat accréditant, après due notification aux Etats accréditaires intéressés, peut accréditer un chef de mission ou affecter un membre du personnel diplomatique, suivant le cas, auprès de plusieurs Etats, à moins que l'un des Etats accréditaires ne s'y oppose expressément."
+<!-- * S'allier avec un ou plusieurs autres pays pour créer une ambassade commune, voire plusieurs Etats accréditent la même personne pour être chef de mission auprès d'un autre Etat, comme stipulé dans l'article 6 de la CVRD; -->
+<!-- * Réunir plusieurs ambassades sous un même toit; -->
+<!-- * Avoir un ambassadeur à mi-temps, nommé pour un pays, présence occasionnelle; -->
+<!-- * Multiplier le nombre de consulats; -->
+<!-- * Mobiliser sa mission permanente à l'ONU, "_the hub of multilateral diplomacy_", pour communiquer avec les autres représentants présents sur place. -->
+
+L'observation sur le tiers des paires possibles de pays existantes se base uniquement sur les missions uniques et directes, qu'en est-il des paires reliées par l'intermédiaire d'un troisième parti ? Les effectifs de liaisons peuvent-ils augmenter en prenant en compte ce mode de représentation ? Ce mode de representation rempli les mêmes buts de communication et d'échanges inter-nations que l'ambassade accréditée à mener ses missions dans un seul pays, certes avec peut-être des délais supplémentaires en raison de cette étape additionnelle, mais "l'intention est là". 
+
+## La centralité d'intermédiarité dans l'analyse des réseaux sociaux
+
+En évoquant la notion de pays intermédiaire dans le réseau international d'ambassades, on se confronte à la mesure mathématique de la centralité d'intermédiarité, propre à l'analyse des réseaux sociaux.
+
+Dans la discipline de l'analyse des réseaux sociaux, un réseau $G$ est un ensemble d'unités, ou noeuds $v$, qui sont connectées entre elles par une ou plusieurs relations, ou liens $e$. Ces liens peuvent être orientés et/ou réciproques, ou non. Ce réseau est schématisé par le graphe $G(v,e)$. Pour comprendre le réseau et l'interpréter, on a recourt à des mesures de structures locales sur comment un réseau s'organise, à des mesures sur la connectivité entre les noeuds, des mesures de cohésion, de diversité, et de centralité.
+
+Ce sont ces dernières qui m'intéressent. Y a-t-il un noeud ou groupe de noeuds qui a une plus grande importance et qui est le plus relié dans le réseau? La centralité d'intermédiarité compte le nombre de fois où un nœud agit comme un point de passage le long du plus court chemin entre deux autres nœuds. Les sommets qui ont une forte probabilité d'apparaître sur un court chemin choisi au hasard entre deux sommets choisis au hasard ont une haute intermédiarité. Freeman [-@freeman1978, p.224] avance que l'intermédiarité est un index du potentiel de contrôle des communications que possède un nœud. En effet, un noeud intermédiaire se retrouve dans une position stratégique entre différentes parties du réseau, par exemple en étant le lien entre deux parties non connectées du réseau. Il peut alors contrôler ce qui passe entre ces parties, ce qui lui donne du pouvoir et de l'influence sur les flux d'informations: il peut faciliter, interrompre ou entraver les échanges du réseau.
+<!-- Pour acteurs $i, j$ et $k$ appartenant à $G(v,e)$. Centralité d'intermédiarité du nœud $i$: -->
+
+<!-- * Pour chaque couple $(j,k)$, on compte le nombre total de plus courts chemins les reliant. -->
+<!-- * Pour chaque couple $(j,k)$, on compte le nombre de plus courts chemins les reliant qui passent par l'acteur $i$. -->
+
+<!-- Pour l'acteur $i$ différent de $j$ et de $k$, sa centralité d'intermédiarité est égale à: $$C_B(i)= \sum_{jk} \frac{\sigma_{jik}}{\sigma_{jk}}, i \neq j \neq k$$ -->
+
+<!-- * $\sigma_{jik}$ nombre de plus courts chemins entre $(j,k)$ passant par $i$, -->
+<!-- * $\sigma_{jk}$ nombre total de plus courts chemins entre $(j,k)$. -->
+
+<!-- Interprétation mathématique de la centralité d'intermédiarité: -->
+
+Manipuler le réseau diplomatique qui est public, médiatisé et régulé par des normes strictes ne semble pas possible. Dans la théorie des graphes, la centralité d'intermédiarité peut déterminer la dépendance du réseau sur un noeud particulier pour maintenir la connectivité. Dans le réseau empirique des ambassades, l'intermédiarité d'un pays hôte et d'une mission invitée peuvent déterminer l'importance et le prestige qu'un pays accréditant accordent à un pays hôte ou à un pays ciblé, et le prestige d'un pays hôte. La pratique de l'accréditation multiple sert à avoir accès à plus d'acteurs. Est-il possible que les deux notions se rejoignent et que le réseau diplomatique soit malléable par un acteur au dépend des autres? Si oui, par le pays accréditant l'ambassade ou par le pays hébergeant l'ambassade?
+
+<!-- "highly central nodes in networks possess high social capital. SC = resources derived from network membership (hafner-burton), resources available to actors as a function of their location in the structure of their social relation [@adler2002]". @bourdieu2006: "ensemble de ressources actuelles ou potentielles qui sont liées à la possession d'un réseau durable de relations plus ou moins institutionalisées d'interconnaissance et d'interreconnaissance. Appartenance à un groupe comme ensemble d'agents dotés de propriétés communes et sont unis par des liaisons permanentes et utiles. Le réseau de liaisons est le produit de stratégies d'investissement social [...] orientées vers l'institution ou la reproduction de relations sociales directement utilisables à court ou à long terme. A entretenir, donc temps et efforts et moula. Faire honneur au groupe, prouver qu'on a sa place car concurrence interne due à concentration du K entre les mains d'un agent (en l'occurrence les big boss de la diplomatie). Solution à la concurrence: la délégation, ou la prise de fonction d'un rôle semi-important." -->
+
+<!-- @bonacich1987 [p.1171] -->
+
+<!-- > "...In bargaining situations, it is advantageous to be connected to those who have few options; power comes from being connected to those who are powerless. Being connected to powerful others who have many potential trading partners reduces one's bargaining power." -->
+
+La mesure mathématique d'intermédiarité peut-elle renforcer le réseau de représentation internationale dans une plus grande mesure que la présence de missions réelles partout où les pays décident d'envoyer les leurs ? 
+
+## Questions de recherche
+
+L'interdépendance grandissante est le chemin vers la paix, la diplomatie est le véhicule de communication entre les pays. L'ambassade et son chef de mission désigné pour un seul pays est la vision la plus populaire de la diplomatie. Je veux dépasser ce cadre des relations uniques qui, si on ne prend qu'elles en compte, donne l'impression que les autres pays du monde ne sont pas préoccupés par le besoin d'éviter la guerre et ne sont pas des nations comme définies par Mauss. Cette dimension des relations uniques présume trop l'infériorité de ces pays supposés marginaux. Je décline le réseau de représentation internationale en introduisant les pays intermédiaires hôtes et des missions intermédiaires dans l'analyse, pour donner aux pays qui maintiennent cette pratique une visibilité qui leur est due. Qui sont-ils ? À quel point sont-ils différents des pays du système de représentation simple ?
+
+Intermédiaire diplomatique v centralité d'intermédiarité: diversité des acteurs et imprédictibilité v efficacité et "rationalité". Y a-t-il des similarités entre les deux, symbole que les pays sont ancrés dans des logiques mathématiquement prévisibles ? 
+
+## Restrictions de l'objet {-}
+
+Dans la sociologie des faits internationaux, les phénomènes sociaux s'intéressent aux représentations et aux mouvements d'un groupe plutôt qu'aux structures matérielles d'un groupe [@ramel2004 232]. L'étude des évolutions des structures nationales et internationales, et de leurs fonctions, l'emporte sur l'étude des caractéristiques démographiques d'une population: pour reprendre l'exemple de Ramel, les changements de densité des populations d'une nation après une guerre "ne sont pas déterminants pour la sociologie des faits internationaux selon Mauss" (_ibid._). Je pousse cet argument un peu plus loin pour justifier le fait que je ne vois ni la trajectoire de vie des ambassadeur.rices, ni la "grandeur" de la mission de représentation comme la taille de son équipe, le parc immobilier ou l'adresse de l'immobilier: ces caractéristiques rendent peut-être la mission plus prestigieuse, mais elles ne déterminent pas la structure des ambassades accréditées pour plusieurs pays. Je ne vois pas non plus les relations diplomatiques menées par l'intermédiaire d'organisations multilatérales internationales, comme l'ONU ou l'Union Européenne (commissions, conseils, groupes d'études et d'alliances). 

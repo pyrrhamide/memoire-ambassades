@@ -1,0 +1,72 @@
+---
+output: 
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+    number_sections: true
+geometry: margin=2.5cm
+fontsize: 12pt
+fontfamily: fourier
+linestretch: 1.5
+indent: true
+papersize: a4
+bibliography: biblio.bib
+csl: asrlf.csl
+---
+
+```{r child="00_page_de_garde.Rmd"}
+```
+
+\newpage
+\begin{spacing}{1}
+
+\phantomsection
+\addcontentsline{toc}{section}{Table des matières}
+\tableofcontents
+\listoftables
+\listoffigures
+
+\end{spacing}
+
+\newpage
+\pagenumbering{arabic}
+\setlength{\parskip}{1em}
+
+```{r child="01_intro.Rmd"}
+```
+
+\newpage
+```{r child="02_lit_review.Rmd"}
+```
+
+\newpage
+```{r child="03_data_methodo.Rmd"}
+```
+
+\newpage
+```{r child="04_resultats.Rmd"}
+```
+
+\newpage
+```{r child="05_interpretations.Rmd"}
+```
+
+\newpage
+```{r child="06_ccl.Rmd"}
+```
+
+\newpage
+\singlespacing
+\setlength{\parskip}{0.5em}
+
+
+\phantomsection
+\addcontentsline{toc}{section}{Références}
+\section*{Références}
+
+<div id="refs"></div>
+
+\newpage
+```{r child="99_annexe.Rmd"}
+```
+
